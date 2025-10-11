@@ -116,8 +116,7 @@ export default function App() {
         <Route path="/users/:id/verify/:token" element={<EmailVerify />} />
         <Route path="/UserProfile" element={<UserProfile />} />
 
-        {/* Map / Contact / Simple dashboard */}
-        <Route path="/admin-dashboard" element={<SimpleDashboard />} />
+        {/* Map / Contact */}
         <Route path="/map" element={<MapComponent />} />
         <Route path="/user-map" element={<UserMap />} />
         <Route path="/pin-details/:id" element={<PinDetails />} />
@@ -125,26 +124,15 @@ export default function App() {
         <Route path="/contact" element={<ContactForm />} />
         <Route path="/contact-list" element={<ContactList />} />
 
-        {/* Victim Dashboard */}
+        {/* Victim Dashboard - only basic routes stay in public */}
         <Route path="/victim" element={<Dashboard />} />
         <Route path="/victim/dashboard" element={<Dashboard />} />
         <Route path="/victim/report" element={<Report />} />
-        <Route path="/victim/read" element={<ReadReport />} />
         <Route path="/victim/report/:id/edit" element={<EditReport />} />
         <Route path="/victim/profile/:id" element={<VictimProfile />} />
         <Route path="/victim/profile/:id/edit" element={<EditVictimProfile />} />
         <Route path="/victim/aid" element={<RequestAid />} />
-        <Route path="/victim/aid/records" element={<ReadAid />} />
         <Route path="/victim/claim" element={<Claim />} />
-        <Route path="/victim/claim/records" element={<ReadClaim />} />
-        <Route path="/victim/claim/action/:id" element={<TakeAction />} />
-        <Route path="/victim/reports" element={<ReportsHub />} />
-        <Route path="/victim/records" element={<Records />} />
-
-        {/* DMO and Response Dashboard Routes */}
-        <Route path="/dmo" element={<DMODashboard />} />
-        <Route path="/deployments" element={<Deployments />} />
-        <Route path="/response" element={<ResponseDashboard />} />
 
         {/* Public reports page */}
         <Route path="/reports" element={<ReportGenerator />} />
@@ -158,8 +146,32 @@ export default function App() {
         <Route path="/donation/centers" element={<Centers />} />
         <Route path="/donation/volunteer" element={<Volunteer />} />
         <Route path="/donation/donate-items" element={<DonateItemForm />} />
+      </Route>
 
-        {/* Donation Dashboard Routes */}
+      {/* Admin layout (NO Header/Footer) */}
+      <Route element={<AdminLayout />}>
+        {/* Admin auth */}
+        <Route path="/AdminLogin" element={<AdminLogin />} />
+        
+        {/* Victim Admin Pages - moved to admin layout to show admin header only */}
+        <Route path="/victim/reports" element={<ReportsHub />} />
+        <Route path="/victim/records" element={<Records />} />
+        <Route path="/victim/read" element={<ReadReport />} />
+        <Route path="/victim/aid/records" element={<ReadAid />} />
+        <Route path="/victim/claim/records" element={<ReadClaim />} />
+        <Route path="/victim/claim/action/:id" element={<TakeAction />} />
+        
+        {/* Simple Dashboard - moved from PublicLayout to remove duplicate header */}
+        <Route path="/admin-dashboard" element={<SimpleDashboard />} />
+        
+        {/* DMO Dashboard - moved from PublicLayout to remove duplicate header */}
+        <Route path="/dmo" element={<DMODashboard />} />
+        <Route path="/deployments" element={<Deployments />} />
+        
+        {/* Response Team Dashboard - moved from PublicLayout to remove duplicate header */}
+        <Route path="/response" element={<ResponseDashboard />} />
+        
+        {/* Donation Dashboard - moved from PublicLayout to remove duplicate header */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
@@ -178,12 +190,6 @@ export default function App() {
           <Route path="donations/:id/edit" element={<DonationEditPage />} />
           <Route path="centers/:id/edit" element={<EditCenter />} />
         </Route>
-      </Route>
-
-      {/* Admin layout (NO Header/Footer) */}
-      <Route element={<AdminLayout />}>
-        {/* Admin auth */}
-        <Route path="/AdminLogin" element={<AdminLogin />} />
         
         {/* Admin dashboard (nested) */}
         <Route path="/AdminHome" element={<AdminHome />}>

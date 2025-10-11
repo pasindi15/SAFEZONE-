@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "../../../api/axios";
 import { useNavigate } from "react-router-dom";
+import AdminNav from "../../../Components/NavBar/adminNav";
 import "./DS_Read.css";
 
 // API endpoints configuration
@@ -410,17 +411,21 @@ export default function ReadClaim() {
   };
 
   return (
-    <main className="claim-page">
-      {/* Page header with title and controls */}
-      <header className="claim-header">
-        <h1>Submitted Reports</h1>
-        <div className="header-right">
-          <button
-            className="btn btn--back"
-            onClick={() => navigate("/victim/reports")}
-          >
-            Back
-          </button>
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <main className="claim-page">
+        {/* Page header with title and controls */}
+        <header className="claim-header">
+          <h1>Submitted Reports</h1>
+          <div className="header-right">
+            <button
+              className="btn btn--back"
+              onClick={() => navigate("/victim/reports")}
+            >
+              Back
+            </button>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -608,5 +613,6 @@ export default function ReadClaim() {
         <div className="empty">No records</div>
       )}
     </main>
+    </>
   );
 }

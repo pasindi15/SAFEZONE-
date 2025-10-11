@@ -151,12 +151,6 @@ const SimpleDashboard = () => {
   };
 
   const handleTabChange = (tab) => {
-    // Navigate to ReportsHub for Victim Management
-    if (tab === 'victim-management') {
-      navigate('/victim/reports');
-      return;
-    }
-    
     setActiveTab(tab);
     
     // Refresh data when switching tabs
@@ -285,7 +279,7 @@ const SimpleDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      
+      <Nav />
       
       <div className="dashboard-content">
         <div className="dashboard-header">
@@ -356,12 +350,6 @@ const SimpleDashboard = () => {
             onClick={() => handleTabChange('contacts')}
           >
             Contact Reports
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'victim-management' ? 'active' : ''}`}
-            onClick={() => handleTabChange('victim-management')}
-          >
-            Victim Management
           </button>
           <button 
             className={`tab-button ${activeTab === 'shelters' ? 'active' : ''}`}

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
+import Nav from '../NavBar/adminNav';
 
 export default function ResponseDashboard() {
   const [active, setActive] = useState("dashboard"); // "dashboard" | "Army" | "Police" | "Fire Brigade"
@@ -327,7 +328,9 @@ export default function ResponseDashboard() {
     : items;
 
   return (
-    <main style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
+    <>
+      <Nav />
+      <main style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
       <aside style={{ 
         width: 240, 
         borderRight: "1px solid #e5e9f1", 
@@ -772,6 +775,7 @@ export default function ResponseDashboard() {
         )}
       </section>
     </main>
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ import Deployments from "./Reports/Deployments";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import Nav from '../NavBar/adminNav';
 
 // Map controller component to handle center and zoom changes
 function MapController({ center, zoom }) {
@@ -275,7 +276,9 @@ export default function DMODashboard() {
   }, []);
 
   return (
-    <main className="dmo-dashboard" style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
+    <>
+      <Nav />
+      <main className="dmo-dashboard" style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
       {/* Sidebar navigation */}
       <aside
         style={{
@@ -795,6 +798,7 @@ export default function DMODashboard() {
         }}
       />
     </main>
+    </>
   );
 }
 

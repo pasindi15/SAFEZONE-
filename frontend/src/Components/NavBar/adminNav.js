@@ -56,13 +56,31 @@ export default function Nav() {
             className={`link ${pathname === "/AdminHome" || pathname === "/AdminHome/" ? "active" : ""}`}
             to="/AdminHome"
           >
-            All Alerts
+            Admin Dashboard
+          </Link>
+          <Link
+            className={`link ${pathname === "/admin-dashboard" ? "active" : ""}`}
+            to="/admin-dashboard"
+          >
+            Disaster Dashboard
+          </Link>
+          <Link
+            className={`link ${pathname === "/dmo" ? "active" : ""}`}
+            to="/dmo"
+          >
+            DMO Dashboard
           </Link>
           <Link
             className={`link ${pathname === "/response" ? "active" : ""}`}
             to="/response"
           >
-            DMO Dashboard
+            Response Team Dashboard
+          </Link>
+          <Link
+            className={`link ${pathname.startsWith("/dashboard") ? "active" : ""}`}
+            to="/dashboard"
+          >
+            Donation Dashboard
           </Link>
           <Link
             className={`link ${pathname.includes("/AdminRegitration") ? "active" : ""}`}
@@ -145,7 +163,15 @@ export default function Nav() {
                     onClick={() => setMenu(false)}
                     role="menuitem"
                   >
-                    Response Dashboard
+                    Response Team Dashboard
+                  </Link>
+                  <Link
+                    className="mitem"
+                    to="/dashboard"
+                    onClick={() => setMenu(false)}
+                    role="menuitem"
+                  >
+                    Donation Dashboard
                   </Link>
                   <Link
                     className="mitem"

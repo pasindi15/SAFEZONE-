@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import axios from '../../../api/axios';
+import AdminNav from '../../../Components/NavBar/adminNav';
 
 export default function TakeAction() {
   const { id } = useParams();
@@ -672,16 +673,20 @@ SafeZone DMS`;
   }
 
   return (
-    <div style={styles.page}>
-      <header style={styles.header}>
-        <h1 style={styles.headerTitle}>Take Action on Claim</h1>
-        <button 
-          style={{...styles.btn, ...styles.btnBack}}
-          onClick={() => navigate('/victim/claim/records')}
-        >
-          ← Back to Claims
-        </button>
-      </header>
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <div style={styles.page}>
+        <header style={styles.header}>
+          <h1 style={styles.headerTitle}>Take Action on Claim</h1>
+          <button 
+            style={{...styles.btn, ...styles.btnBack}}
+            onClick={() => navigate('/victim/claim/records')}
+          >
+            ← Back to Claims
+          </button>
+        </header>
 
       <div style={styles.content}>
         {/* Claim Details Section */}
@@ -882,5 +887,6 @@ SafeZone DMS`;
         </div>
       </div>
     </div>
+    </>
   );
 }
