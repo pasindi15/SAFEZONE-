@@ -1149,3 +1149,123 @@
 .donation-component .donation-ngo-records-empty {
   color: #6b7280;
 }
+
+/* ==========================================================================
+   IMAGE CAROUSEL/ROTATOR STYLES
+   ========================================================================== */
+
+/* Main rotator container */
+.donation-component .donation-rotator {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+/* Individual images in the rotator */
+.donation-component .donation-rotator img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  z-index: 1;
+}
+
+/* Active/visible image */
+.donation-component .donation-rotator img.donation-show {
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Dots indicator container */
+.donation-component .donation-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* Individual dot buttons */
+.donation-component .donation-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
+}
+
+/* Active dot */
+.donation-component .donation-dot.active {
+  background: #ffffff;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Hover effect for dots */
+.donation-component .donation-dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.1);
+}
+
+/* Focus state for accessibility */
+.donation-component .donation-dot:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Smooth fade transition for images */
+.donation-component .donation-rotator img {
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover pause effect */
+.donation-component .donation-rotator:hover img {
+  transition-duration: 0.3s;
+}
+
+/* Responsive adjustments for dots */
+@media (max-width: 768px) {
+  .donation-component .donation-dots {
+    bottom: 8px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  
+  .donation-component .donation-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Animation for smooth image transitions - scoped to donation component */
+.donation-component .donation-rotator img.donation-show {
+  animation: donation-fadeIn 0.6s ease-out;
+}
+
+/* Keyframe animation scoped to donation component */
+@keyframes donation-fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
