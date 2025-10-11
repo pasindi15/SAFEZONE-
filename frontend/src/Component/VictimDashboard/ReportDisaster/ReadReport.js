@@ -14,6 +14,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import AdminNav from "../../../Components/NavBar/adminNav";
 import Read from "./Read";
 import "./RD_Read.css";
 
@@ -187,13 +188,17 @@ export default function ReadReport({ hideActions, compact, severity, showAssign,
   // ========================================
   
   return (
-    <main className="read-wrap container">
-      {/* Header section with title, count, and search functionality */}
-      <header className="read-head">
-        <div className="header-left">
-          <h1>Submitted Reports</h1>
-          <div className="read-count">{victims.length} total</div>
-        </div>
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <main className="read-wrap container">
+        {/* Header section with title, count, and search functionality */}
+        <header className="read-head">
+          <div className="header-left">
+            <h1>Submitted Reports</h1>
+            <div className="read-count">{victims.length} total</div>
+          </div>
         <div className="header-right">
           {/* Search toolbar */}
           <div className="ra-toolbar">
@@ -250,6 +255,7 @@ export default function ReadReport({ hideActions, compact, severity, showAssign,
         ))}
       </section>
     </main>
+    </>
   );
 }
 

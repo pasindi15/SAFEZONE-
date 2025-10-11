@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import AdminNav from "../../../Components/NavBar/adminNav";
 import "./RA_Read.css";
 
 /* ---- API Endpoints Configuration ---- */
@@ -151,19 +152,23 @@ export default function ReadAid({ hideActions, hideReview, hideDelete, showFulfi
   };
 
   return (
-    <main className="ra-page">
-      {/* Page Header with Title and Controls */}
-      <header className="ra-header">
-        <h2>Aid Requests</h2>
-        <div className="ra-toolbar">
-          {/* Search Input Field */}
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by name, phone, NIC, email, location…"
-            className="ra-search"
-            disabled={loading}
-          />
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <main className="ra-page">
+        {/* Page Header with Title and Controls */}
+        <header className="ra-header">
+          <h2>Aid Requests</h2>
+          <div className="ra-toolbar">
+            {/* Search Input Field */}
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by name, phone, NIC, email, location…"
+              className="ra-search"
+              disabled={loading}
+            />
           {/* Back Navigation Button */}
           {!hideActions && (
             <button className="ra-btn ra-btn--ghost ra-btn--back" onClick={() => navigate("/victim/reports")}>
@@ -262,6 +267,7 @@ export default function ReadAid({ hideActions, hideReview, hideDelete, showFulfi
         </table>
       </div>
     </main>
+    </>
   );
 }
 

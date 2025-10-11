@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import AdminNav from "../../../Components/NavBar/adminNav";
 import "./Records.css";
 
 /* ========================================
@@ -617,15 +618,19 @@ export default function Records() {
   // ========================================
 
   return (
-    <main className="records-dashboard container light-theme">
-      {/* ========================================
-           Header Section
-           ======================================== */}
-      <header className="records-header">
-        <div className="header-content">
-          <h1>📊 Records & Analytics</h1>
-          <p>Comprehensive analysis of emergency management data</p>
-        </div>
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <main className="records-dashboard container light-theme">
+        {/* ========================================
+             Header Section
+             ======================================== */}
+        <header className="records-header">
+          <div className="header-content">
+            <h1>📊 Records & Analytics</h1>
+            <p>Comprehensive analysis of emergency management data</p>
+          </div>
         <div className="header-actions">
           <select 
             className="period-selector"
@@ -906,5 +911,6 @@ export default function Records() {
         </div>
       </section>
     </main>
+    </>
   );
 }

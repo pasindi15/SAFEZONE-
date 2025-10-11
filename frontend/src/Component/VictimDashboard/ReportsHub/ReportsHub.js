@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import AdminNav from "../../../Components/NavBar/adminNav";
 import "./ReportsHub.css";
 
 /* ========================================
@@ -284,31 +285,35 @@ export default function ReportsHub() {
   // ========================================
 
   return (
-    <main className="reports-hub container light-theme">
-      {/* ========================================
-           Header Section
-           ======================================== */}
-      <header className="hub-top">
-        <h1>Submitted Records</h1>
-        <div className="header-actions">
-          <Link 
-            to="/victim/records" 
-            className="btn btn--primary"
-            aria-label="View detailed records and analytics"
-          >
-            📊 Records
-          </Link>
-          <button 
-            className="btn btn--ghost" 
-            onClick={load} 
-            disabled={loading}
-            aria-label={loading ? "Refreshing data" : "Refresh data"}
-          >
-            <IconRefresh /> 
-            <span>{loading ? "Refreshing…" : "Refresh"}</span>
-          </button>
-        </div>
-      </header>
+    <>
+      {/* Admin Header */}
+      <AdminNav />
+      
+      <main className="reports-hub container light-theme">
+        {/* ========================================
+             Header Section
+             ======================================== */}
+        <header className="hub-top">
+          <h1>Submitted Records</h1>
+          <div className="header-actions">
+            <Link 
+              to="/victim/records" 
+              className="btn btn--primary"
+              aria-label="View detailed records and analytics"
+            >
+              📊 Records
+            </Link>
+            <button 
+              className="btn btn--ghost" 
+              onClick={load} 
+              disabled={loading}
+              aria-label={loading ? "Refreshing data" : "Refresh data"}
+            >
+              <IconRefresh /> 
+              <span>{loading ? "Refreshing…" : "Refresh"}</span>
+            </button>
+          </div>
+        </header>
 
       {/* ========================================
            Recent Requests Summary Section
@@ -494,6 +499,7 @@ export default function ReportsHub() {
         </article>
       </section>
     </main>
+    </>
   );
 }
 
