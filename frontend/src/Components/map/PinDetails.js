@@ -49,19 +49,52 @@ function PinDetails() {
 
         {/* Main Content Card */}
         <div className="main-content-card">
-          <div className="content-layout">
+          <div className="content-layout" style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            gap: "2rem",
+            padding: "2rem",
+            minHeight: "700px"
+          }}>
             {/* Left Side - Video Player */}
-            <div className="video-section">
+            <div className="video-section" style={{ width: "100%", minHeight: "600px" }}>
               {pin.videos && pin.videos.length > 0 ? (
-                <div className="video-player">
-                  <video controls>
+                <div className="video-player" style={{ 
+                  width: "100%", 
+                  minHeight: "600px",
+                  background: "#000",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.2)"
+                }}>
+                  <video 
+                    controls
+                    style={{
+                      width: "100%",
+                      height: "600px",
+                      minHeight: "600px",
+                      objectFit: "cover",
+                      display: "block",
+                      borderRadius: "12px"
+                    }}
+                  >
                     <source src={`http://localhost:5000/pins/${pin._id}/video/0`} type={pin.videos[0].contentType} />
                     Your browser does not support the video tag.
                   </video>
                   <p className="video-caption">On-the-ground footage from affected areas</p>
                 </div>
               ) : (
-                <div className="video-placeholder">
+                <div className="video-placeholder" style={{
+                  width: "100%",
+                  height: "600px",
+                  minHeight: "600px",
+                  background: "#f3f4f6",
+                  border: "2px dashed #d1d5db",
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
                   <div className="placeholder-content">
                     <div className="play-icon">▶</div>
                     <p>No video available</p>

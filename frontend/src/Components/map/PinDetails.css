@@ -62,10 +62,10 @@
 /* Content Layout */
 .content-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 2rem;
   padding: 2rem;
-  min-height: 500px;
+  min-height: 700px;
 }
 
 /* Video Section */
@@ -84,7 +84,7 @@
 
 .video-player video {
   width: 100%;
-  height: 300px;
+  height: 600px;
   object-fit: cover;
   display: block;
 }
@@ -102,7 +102,7 @@
   background: #f3f4f6;
   border: 2px dashed #d1d5db;
   border-radius: 8px;
-  height: 300px;
+  height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -309,11 +309,11 @@
   }
   
   .video-player video {
-    height: 250px;
+    height: 450px;
   }
   
   .video-placeholder {
-    height: 250px;
+    height: 450px;
   }
   
   .gallery-grid {
@@ -351,11 +351,11 @@
   }
   
   .video-player video {
-    height: 200px;
+    height: 350px;
   }
   
   .video-placeholder {
-    height: 200px;
+    height: 350px;
   }
   
   .gallery-grid {
