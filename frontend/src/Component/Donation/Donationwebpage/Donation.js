@@ -46,19 +46,33 @@ const NeedBar = ({ label, value, max, color, unit, coverage }) => {
 /* ---------- Mini image rotator ---------- */
 const MiniRotator = ({ images = [], interval = 3500, alt = "" }) => {
   const [i, setI] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
   const paused = useRef(false);
   const useAuto = useRef(
     typeof window !== "undefined" &&
       !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
   );
 
+  // Ensure we have at least one image
+  const displayImages = images.length > 0 ? images : ["/images/Report1.webp"];
+
   useEffect(() => {
-    if (!useAuto.current || images.length <= 1) return;
+    if (!useAuto.current || displayImages.length <= 1) return;
     const id = setInterval(() => {
-      if (!paused.current) setI((p) => (p + 1) % images.length);
+      if (!paused.current) setI((p) => (p + 1) % displayImages.length);
     }, interval);
     return () => clearInterval(id);
-  }, [images.length, interval]);
+  }, [displayImages.length, interval]);
+
+  const handleImageLoad = () => {
+    setIsLoaded(true);
+  };
+
+  const handleImageError = (e) => {
+    console.warn(`Failed to load image: ${e.target.src}`);
+    // Set a fallback image
+    e.target.src = "/images/Report1.webp";
+  };
 
   return (
     <div
@@ -66,18 +80,26 @@ const MiniRotator = ({ images = [], interval = 3500, alt = "" }) => {
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
-      {images.map((src, idx) => (
-        <img key={idx} src={src} alt={alt} className={i === idx ? "donation-show" : ""} />
+      {displayImages.map((src, idx) => (
+        <img 
+          key={idx} 
+          src={src} 
+          alt={alt} 
+          className={i === idx ? "donation-show" : ""}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          loading="lazy"
+        />
       ))}
-      {images.length > 1 && (
+      {displayImages.length > 1 && (
         <div className="donation-dots" aria-label="Image selector">
-          {images.map((_, d) => (
+          {displayImages.map((_, d) => (
             <button
               key={d}
               className={"donation-dot" + (i === d ? " active" : "")}
               onClick={() => setI(d)}
               type="button"
-              aria-label={`Show image ${d + 1}`}
+              aria-label={`Show image ${d + 1} of ${displayImages.length}`}
               aria-pressed={i === d}
             />
           ))}
@@ -214,18 +236,18 @@ export default function Donation() {
             if (img) images.push(toAbs(img));
           });
         }
-        // fallback mapping per disaster name
+        // fallback mapping per disaster name with multiple images for carousel
         const fallbackImages = {
-          "Flood in Kandy": "/disasters/flood-kandy.jpg",
-          "Flood Response": "/disasters/flood-ratnapura.jpg",
-          "Cyclone/Storm Aid": "/disasters/storm-gampaha.jpg",
-          "Landslide Relief": "/disasters/landslide-kegalle.jpg",
+          "Flood in Kandy": ["/flood.jpeg", "/images/Report1.webp", "/images/Report2.webp"],
+          "Flood Response": ["/flood.jpeg", "/images/Report2.webp", "/images/Report3.webp"],
+          "Cyclone/Storm Aid": ["/storm.jpeg", "/images/Report1.webp", "/images/Report3.webp"],
+          "Landslide Relief": ["/land.jpeg", "/images/Report2.webp", "/images/Report1.webp"],
         };
 
         // use fallback if no gallery images
         if (images.length === 0) {
-          const fallback = fallbackImages[disaster.name] || `/disasters/default-1.jpg`;
-          images.push(fallback);
+          const fallbacks = fallbackImages[disaster.name] || ["/images/Report1.webp", "/images/Report2.webp", "/images/Report3.webp"];
+          images.push(...fallbacks);
         }
 
         let needs = [];
@@ -250,10 +272,10 @@ export default function Donation() {
       console.error("Failed to fetch disasters:", err);
       setError(err.message || "Failed to load disasters");
       setDisasters([
-        { key: "flood", name: "Flood Response", city: "Ratnapura", imgs: ["/disasters/flood-1.jpg", "/disasters/flood-2.jpg"], summary: "Severe flooding has displaced families near the Kalu Ganga.", needs: ["Dry rations", "Water", "Bedding"], severity: "High", accentColor: "#22c55e" },
-        { key: "landslide", name: "Landslide Relief", city: "Kegalle", imgs: ["/disasters/landslide-1.jpg", "/disasters/landslide-2.jpg"], summary: "Multiple slope failures reported after heavy rainfall.", needs: ["Medical kits", "Blankets", "Tools"], severity: "Critical", accentColor: "#ef4444" },
-        { key: "storm", name: "Cyclone / Storm Aid", city: "Matara", imgs: ["/disasters/storm-1.jpg", "/disasters/storm-2.jpg"], summary: "Coastal communities affected by high winds and rainbands.", needs: ["Tarpaulins", "Clothing", "Baby items"], severity: "Medium", accentColor: "#eab308" },
-        { key: "fire", name: "Urban Fire Support", city: "Galle", imgs: ["/disasters/fire-1.jpg", "/disasters/fire-2.jpg"], summary: "Emergency shelter and supplies for families displaced by a fire.", needs: ["Hygiene packs", "Food", "Medicines"], severity: "High", accentColor: "#f97316" },
+        { key: "flood", name: "Flood Response", city: "Ratnapura", imgs: ["/flood.jpeg", "/images/Report1.webp", "/images/Report2.webp"], summary: "Severe flooding has displaced families near the Kalu Ganga.", needs: ["Dry rations", "Water", "Bedding"], severity: "High", accentColor: "#22c55e" },
+        { key: "landslide", name: "Landslide Relief", city: "Kegalle", imgs: ["/land.jpeg", "/images/Report2.webp", "/images/Report3.webp"], summary: "Multiple slope failures reported after heavy rainfall.", needs: ["Medical kits", "Blankets", "Tools"], severity: "Critical", accentColor: "#ef4444" },
+        { key: "storm", name: "Cyclone / Storm Aid", city: "Matara", imgs: ["/storm.jpeg", "/images/Report1.webp", "/images/Report3.webp"], summary: "Coastal communities affected by high winds and rainbands.", needs: ["Tarpaulins", "Clothing", "Baby items"], severity: "Medium", accentColor: "#eab308" },
+        { key: "fire", name: "Urban Fire Support", city: "Galle", imgs: ["/fire.jpeg", "/images/Report2.webp", "/images/Report1.webp"], summary: "Emergency shelter and supplies for families displaced by a fire.", needs: ["Hygiene packs", "Food", "Medicines"], severity: "High", accentColor: "#f97316" },
       ]);
     } finally {
       setLoading(false);

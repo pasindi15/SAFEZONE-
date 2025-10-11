@@ -128,90 +128,104 @@ export default function Distributionplan({ onClose }) {
   const [volunteers, setVolunteers] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [tick, setTick] = useState(0);
+  const [dataSource, setDataSource] = useState({ inventory: 'loading', operations: 'loading', volunteers: 'loading' });
+
+  // Create a refresh function that can be called manually
+  const refreshData = useCallback(async () => {
+    setLoading(true);
+    setErr("");
+    
+    try {
+      // Try to fetch from API first - prioritize inventory data for actual values
+      const [opsRes, volRes, invRes] = await Promise.all([
+        fetch(`${API_BASE}/api/operations`).catch(() => ({ ok: false, status: 'offline' })),
+        fetch(`${API_BASE}/api/volunteer?assigned=true&limit=500`).catch(() => ({ ok: false, status: 'offline' })),
+        fetch(`${API_BASE}/api/inventory`).catch(() => ({ ok: false, status: 'offline' })),
+      ]);
+
+      let ops, vols, inv;
+
+      // Always try to get real inventory data, even if other APIs fail
+      if (invRes.ok) {
+        inv = await invRes.json();
+        console.log("Real inventory data refreshed:", inv);
+        setDataSource(prev => ({ ...prev, inventory: 'api' }));
+      } else {
+        console.warn("Inventory API not available, using fallback data");
+        inv = { items: [
+          { item: "dry_rations", quantity: 250 },
+          { item: "water", quantity: 500 },
+          { item: "bedding", quantity: 80 },
+          { item: "medical", quantity: 45 },
+          { item: "clothing", quantity: 120 },
+          { item: "hygiene", quantity: 90 }
+        ]};
+        setDataSource(prev => ({ ...prev, inventory: 'fallback' }));
+      }
+
+      if (opsRes.ok && volRes.ok) {
+        // Both operations and volunteers APIs are working
+        ops = await opsRes.json();
+        vols = await volRes.json();
+        setDataSource(prev => ({ ...prev, operations: 'api', volunteers: 'api' }));
+      } else {
+        // Use fallback for operations and volunteers if needed
+        if (!opsRes.ok) {
+          console.warn("Operations API not available, using fallback data");
+          ops = [{
+            _id: "demo-op-1",
+            operationName: "Emergency Relief Operation",
+            status: "active",
+            location: "Colombo, Sri Lanka",
+            timeline: {
+              teamAssigned: "done",
+              vehicleLoaded: "done", 
+              enRoute: "warn",
+              checkpointVerified: "pending",
+              distributionStart: "pending",
+              returnReport: "pending"
+            }
+          }];
+          setDataSource(prev => ({ ...prev, operations: 'fallback' }));
+        } else {
+          ops = await opsRes.json();
+          setDataSource(prev => ({ ...prev, operations: 'api' }));
+        }
+        
+        if (!volRes.ok) {
+          console.warn("Volunteers API not available, using fallback data");
+          vols = { items: [
+            { _id: "vol-1", fullName: "John Smith", volunteerType: "individual", operationId: "demo-op-1" },
+            { _id: "vol-2", fullName: "Sarah Johnson", volunteerType: "team", operationId: "demo-op-1" },
+            { _id: "vol-3", fullName: "Mike Wilson", volunteerType: "individual", operationId: "demo-op-1" }
+          ]};
+          setDataSource(prev => ({ ...prev, volunteers: 'fallback' }));
+        } else {
+          vols = await volRes.json();
+          setDataSource(prev => ({ ...prev, volunteers: 'api' }));
+        }
+      }
+
+      setOperations(Array.isArray(ops) ? ops : (ops.data || ops.items || []));
+      setVolunteers(Array.isArray(vols?.items) ? vols.items : (Array.isArray(vols) ? vols : []));
+      setInventory(inv?.items || (Array.isArray(inv) ? inv : []));
+      
+    } catch (e) {
+      console.warn("Error refreshing data:", e);
+      setErr("Failed to refresh data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let alive = true;
+    refreshData();
     
-    // Fallback data for when API is not available
-    const fallbackData = {
-      operations: [{
-        _id: "demo-op-1",
-        operationName: "Emergency Relief Operation",
-        status: "active",
-        location: "Colombo, Sri Lanka",
-        timeline: {
-          teamAssigned: "done",
-          vehicleLoaded: "done", 
-          enRoute: "warn",
-          checkpointVerified: "pending",
-          distributionStart: "pending",
-          returnReport: "pending"
-        }
-      }],
-      volunteers: [
-        { _id: "vol-1", fullName: "John Smith", volunteerType: "individual", operationId: "demo-op-1" },
-        { _id: "vol-2", fullName: "Sarah Johnson", volunteerType: "team", operationId: "demo-op-1" },
-        { _id: "vol-3", fullName: "Mike Wilson", volunteerType: "individual", operationId: "demo-op-1" }
-      ],
-      inventory: [
-        { item: "dry_rations", quantity: 250 },
-        { item: "water", quantity: 500 },
-        { item: "bedding", quantity: 80 },
-        { item: "medical", quantity: 45 },
-        { item: "clothing", quantity: 120 },
-        { item: "hygiene", quantity: 90 }
-      ]
-    };
-    
-    (async () => {
-      try {
-        setLoading(true); setErr("");
-        
-        // Try to fetch from API first
-        const [opsRes, volRes, invRes] = await Promise.all([
-          fetch(`${API_BASE}/api/operations`).catch(() => ({ ok: false, status: 'offline' })),
-          fetch(`${API_BASE}/api/volunteer?assigned=true&limit=500`).catch(() => ({ ok: false, status: 'offline' })),
-          fetch(`${API_BASE}/api/inventory`).catch(() => ({ ok: false, status: 'offline' })),
-        ]);
-
-        let ops, vols, inv;
-
-        if (opsRes.ok && volRes.ok && invRes.ok) {
-          // API is working, use real data
-          ops = await opsRes.json();
-          vols = await volRes.json();
-          inv = await invRes.json();
-        } else {
-          // API is down, use fallback data
-          console.warn("API not available, using fallback data");
-          ops = fallbackData.operations;
-          vols = { items: fallbackData.volunteers };
-          inv = { items: fallbackData.inventory };
-        }
-
-        if (!alive) return;
-        setOperations(Array.isArray(ops) ? ops : (ops.data || ops.items || fallbackData.operations));
-        setVolunteers(Array.isArray(vols?.items) ? vols.items : (Array.isArray(vols) ? vols : fallbackData.volunteers));
-        setInventory(inv?.items || (Array.isArray(inv) ? inv : fallbackData.inventory));
-        
-      } catch (e) {
-        console.warn("Error loading data, using fallback:", e);
-        if (alive) {
-          // Use fallback data even on error
-          setOperations(fallbackData.operations);
-          setVolunteers(fallbackData.volunteers);
-          setInventory(fallbackData.inventory);
-        }
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
     const onStorage = (e) => { if (e.key === TL_STORAGE_KEY) setTick(t => t + 1); };
     storageHandlerRef.current = onStorage;
     window.addEventListener("storage", onStorage);
-    return () => { alive = false; window.removeEventListener("storage", onStorage); };
-  }, []);
+    return () => { window.removeEventListener("storage", onStorage); };
+  }, [refreshData]);
 
   const activeOp = useMemo(() => {
     if (!operations?.length) return null;
@@ -365,8 +379,37 @@ export default function Distributionplan({ onClose }) {
                 <div className="dp-timeline-head">
                   <div>
                     <div className="dp-timeline-title">Emergency resources available</div>
-                    <div className="dp-timeline-sub">Live from inventory</div>
+                    <div className="dp-timeline-sub">
+                      Live from inventory
+                      {dataSource.inventory === 'api' && (
+                        <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '11px' }}>
+                          ✓ Live Data
+                        </span>
+                      )}
+                      {dataSource.inventory === 'fallback' && (
+                        <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '11px' }}>
+                          ⚠ Demo Data
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  <button 
+                    onClick={refreshData}
+                    disabled={loading}
+                    style={{
+                      background: loading ? '#f3f4f6' : 'none',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '12px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      color: loading ? '#9ca3af' : '#6b7280',
+                      opacity: loading ? 0.6 : 1
+                    }}
+                    title="Refresh data"
+                  >
+                    {loading ? '⏳' : '🔄'} Refresh
+                  </button>
                 </div>
 
                 <div className="dp-kpi-grid">
