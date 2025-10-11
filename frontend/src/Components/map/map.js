@@ -32,6 +32,11 @@ function Map() {
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [urlError, setUrlError] = useState("");
 
+  // DMS Coordinate input state
+  const [showDMSInput, setShowDMSInput] = useState(false);
+  const [dmsCoordinates, setDMSCoordinates] = useState("");
+  const [dmsError, setDMSError] = useState("");
+
   // form data for creating a pin
   const [createFormData, setCreateFormData] = useState({
     place: "",
@@ -872,6 +877,71 @@ function Map() {
     }
   };
 
+  // Parse DMS (Degrees, Minutes, Seconds) coordinates
+  const parseDMSCoordinates = (dmsString) => {
+    try {
+      // Clean the input string
+      const cleanInput = dmsString.trim().toUpperCase();
+      
+      // Pattern to match DMS format: 7°11'52.2"N 81°50'50.8"E
+      const dmsPattern = /(\d+)°(\d+)'([\d.]+)"([NS])\s+(\d+)°(\d+)'([\d.]+)"([EW])/;
+      
+      const match = cleanInput.match(dmsPattern);
+      if (!match) {
+        throw new Error("Invalid DMS format. Please use format like: 7°11'52.2\"N 81°50'50.8\"E");
+      }
+      
+      const [, latDeg, latMin, latSec, latDir, lngDeg, lngMin, lngSec, lngDir] = match;
+      
+      // Convert DMS to decimal degrees
+      const convertDMSToDecimal = (degrees, minutes, seconds, direction) => {
+        let decimal = parseInt(degrees) + parseInt(minutes)/60 + parseFloat(seconds)/3600;
+        if (direction === 'S' || direction === 'W') {
+          decimal = -decimal;
+        }
+        return decimal;
+      };
+      
+      const latitude = convertDMSToDecimal(latDeg, latMin, latSec, latDir);
+      const longitude = convertDMSToDecimal(lngDeg, lngMin, lngSec, lngDir);
+      
+      // Validate coordinates
+      if (latitude < -90 || latitude > 90) {
+        throw new Error("Latitude must be between -90 and 90 degrees");
+      }
+      if (longitude < -180 || longitude > 180) {
+        throw new Error("Longitude must be between -180 and 180 degrees");
+      }
+      
+      return { latitude, longitude };
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle DMS coordinate input
+  const handleDMSInput = () => {
+    if (!dmsCoordinates.trim()) {
+      setDMSError("Please enter DMS coordinates");
+      return;
+    }
+    
+    try {
+      const coords = parseDMSCoordinates(dmsCoordinates);
+      
+      // Set the new place coordinates to show the pin creation form
+      setNewPlace({
+        longitude: coords.longitude,
+        latitude: coords.latitude,
+      });
+      setShowDMSInput(false);
+      setDMSCoordinates("");
+      setDMSError("");
+    } catch (error) {
+      setDMSError(error.message);
+    }
+  };
+
   return (
     <div style={{ position: "relative", width: 900, height: 900 }}>
       {/* Google Maps URL Input Controls */}
@@ -912,6 +982,36 @@ function Map() {
           }}
         >
           📍 Add Pin from Google Maps
+        </button>
+
+        {/* Add Pin from DMS Coordinates Button */}
+        <button
+          onClick={() => setShowDMSInput(!showDMSInput)}
+          style={{
+            background: "#ff6b35",
+            color: "white",
+            border: "none",
+            padding: "10px 15px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            transition: "all 0.3s ease"
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = "#e55a2b";
+            e.target.style.transform = "translateY(-1px)";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = "#ff6b35";
+            e.target.style.transform = "translateY(0)";
+          }}
+        >
+          🧭 Add Pin from DMS Coordinates
         </button>
 
         {/* URL Input Form */}
@@ -987,6 +1087,122 @@ function Map() {
               >
                 Add Pin
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* DMS Coordinate Input Form */}
+        {showDMSInput && (
+          <div style={{
+            background: "white",
+            padding: "20px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            minWidth: "350px",
+            maxWidth: "400px"
+          }}>
+            <h4 style={{ 
+              margin: "0 0 15px 0", 
+              color: "#333",
+              fontSize: "16px",
+              fontWeight: "600"
+            }}>
+              🧭 Add Pin from DMS Coordinates
+            </h4>
+            
+            <input
+              type="text"
+              placeholder="7°11'52.2&quot;N 81°50'50.8&quot;E"
+              value={dmsCoordinates}
+              onChange={(e) => {
+                setDMSCoordinates(e.target.value);
+                setDMSError("");
+              }}
+              style={{
+                width: "100%",
+                padding: "12px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "14px",
+                marginBottom: "12px",
+                fontFamily: "monospace",
+                boxSizing: "border-box"
+              }}
+            />
+            
+            {dmsError && (
+              <div style={{
+                color: "#f44336",
+                fontSize: "13px",
+                marginBottom: "12px",
+                padding: "8px",
+                background: "#ffebee",
+                borderRadius: "4px",
+                border: "1px solid #ffcdd2"
+              }}>
+                ⚠️ {dmsError}
+              </div>
+            )}
+            
+            <div style={{
+              display: "flex",
+              gap: "10px",
+              justifyContent: "space-between",
+              marginBottom: "12px"
+            }}>
+              <button
+                onClick={() => {
+                  setShowDMSInput(false);
+                  setDMSCoordinates("");
+                  setDMSError("");
+                }}
+                style={{
+                  background: "#f44336",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 16px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  flex: "1"
+                }}
+              >
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleDMSInput}
+                disabled={!dmsCoordinates.trim()}
+                style={{
+                  background: dmsCoordinates.trim() ? "#ff6b35" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 16px",
+                  borderRadius: "6px",
+                  cursor: dmsCoordinates.trim() ? "pointer" : "not-allowed",
+                  fontSize: "14px",
+                  flex: "1"
+                }}
+              >
+                🧭 Add Pin
+              </button>
+            </div>
+            
+            <div style={{
+              fontSize: "11px",
+              color: "#666",
+              lineHeight: "1.4",
+              background: "#f8f9fa",
+              padding: "10px",
+              borderRadius: "6px",
+              border: "1px solid #e9ecef"
+            }}>
+              <strong>💡 Format Examples:</strong><br />
+              • 7°11'52.2"N 81°50'50.8"E<br />
+              • 6°55'30.0"N 79°52'12.0"E<br />
+              • 8°20'15.5"N 80°35'45.2"E<br />
+              <br />
+              <strong>Note:</strong> Use spaces between latitude and longitude coordinates.
             </div>
           </div>
         )}
