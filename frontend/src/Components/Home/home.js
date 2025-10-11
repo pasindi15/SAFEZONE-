@@ -141,12 +141,19 @@ const SafeZoneHomePage = () => {
           </div>
 
           <div className="action-card">
-            <Home size={48} style={{ color: '#27ae60', marginBottom: '1rem' }} />
-            <h3>Find Local Shelters</h3>
-            <p>Locate nearby emergency shelters and safe zones with real-time availability and directions.</p>
-            <button style={{ backgroundColor: '#27ae60' }}>Find Shelters</button>
+            <Users size={48} style={{ color: '#9b59b6', marginBottom: '1rem' }} />
+            <h3>Support Disaster</h3>
+            <p>Join our community of support disaster and make a difference in disaster preparedness and response.</p>
+            <button 
+              onClick={() => navigate('/donation')}
+              style={{ backgroundColor: '#9b59b6' }}
+            >
+              Get Involved
+            </button>
           </div>
 
+
+           {/* Add Alerts*/}
           <div className="action-card">
             <Users size={48} style={{ color: '#9b59b6', marginBottom: '1rem' }} />
             <h3>Support Disaster</h3>
@@ -159,39 +166,16 @@ const SafeZoneHomePage = () => {
             </button>
           </div>
 
-          <div className="action-card">
-            <BarChart3 size={48} style={{ color: '#00bfff', marginBottom: '1rem' }} />
-            <h3>Admin Dashboard</h3>
-            <p>Access comprehensive disaster management tools, view reports, and manage emergency responses.</p>
-            <button 
-              onClick={() => navigate('/admin-dashboard')}
-              style={{ backgroundColor: '#00bfff' }}
-            >
-              Open Dashboard
-            </button>
-          </div>
 
           <div className="action-card">
-            <BarChart3 size={48} style={{ color: '#00bfff', marginBottom: '1rem' }} />
-            <h3>DMO Dashboard</h3>
-            <p>Access comprehensive disaster management tools, view reports, and manage emergency responses.</p>
+            <Users size={48} style={{ color: '#9b59b6', marginBottom: '1rem' }} />
+            <h3>Support Disaster</h3>
+            <p>Join our community of support disaster and make a difference in disaster preparedness and response.</p>
             <button 
-              onClick={() => navigate('/dmo')}
-              style={{ backgroundColor: '#00bfff' }}
+              onClick={() => navigate('/donation')}
+              style={{ backgroundColor: '#9b59b6' }}
             >
-              Open Dashboard
-            </button>
-          </div>
-
-          <div className="action-card">
-            <BarChart3 size={48} style={{ color: '#00bfff', marginBottom: '1rem' }} />
-            <h3>Response Team Dashboard</h3>
-            <p>Access comprehensive disaster management tools, view reports, and manage emergency responses.</p>
-            <button 
-              onClick={() => navigate('/response')}
-              style={{ backgroundColor: '#00bfff' }}
-            >
-              Open Dashboard
+              Get Involved
             </button>
           </div>
 
