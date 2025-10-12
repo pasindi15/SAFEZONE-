@@ -403,11 +403,28 @@ export default function ReadClaim() {
     const claim = rows.find(r => r._id === id);
     if (!claim) return;
     
-    // Store claim data in localStorage for the action page
-    localStorage.setItem('selectedClaim', JSON.stringify(claim));
+    // Show alert first
+    const userConfirmed = window.confirm("Get Actions");
     
-    // Navigate to the take action page
-    navigate(`/victim/claim/action/${id}`);
+    if (userConfirmed) {
+      // Mark the claim as reviewed (action taken) permanently
+      const updatedRows = rows.map(r => 
+        r._id === id ? { ...r, reviewed: true } : r
+      );
+      setRows(updatedRows);
+      
+      // Update localStorage to persist the reviewed status
+      const s = readReviewedIds();
+      s.add(String(id));
+      writeReviewedIds(s);
+      setReviewedIds(new Set(s));
+      
+      // Store claim data in localStorage for the action page
+      localStorage.setItem('selectedClaim', JSON.stringify(claim));
+      
+      // Navigate to the take action page
+      navigate(`/victim/claim/action/${id}`);
+    }
   };
 
   return (

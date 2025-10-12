@@ -511,7 +511,7 @@ export default function EditReport() {
                 name="occurredAt"
                 value={form.occurredAt}
                 onChange={onChange}
-                max={new Date().toISOString().slice(0, 16)}
+                max={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                 onBlur={() => {
                   if (form.occurredAt) {
                     const selectedDate = new Date(form.occurredAt);

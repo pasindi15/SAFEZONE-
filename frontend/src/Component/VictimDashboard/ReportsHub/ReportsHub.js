@@ -206,9 +206,8 @@ export default function ReportsHub() {
   // ========================================
 
   /**
-   * Finds the most recent timestamp from an array of records
-   * Checks multiple possible date fields to find the latest entry
-   * 
+ 
+   Last submission calculation
    * @param {Array} arr - Array of records to check
    * @param {Array} keys - Array of date field names to check
    * @returns {Date|null} Most recent date or null if none found

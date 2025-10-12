@@ -11,9 +11,6 @@ import axios from "axios";
 import AdminNav from "../../../Components/NavBar/adminNav";
 import "./Records.css";
 
-/* ========================================
-   Icon Components - Lightweight SVG Icons
-   ======================================== */
 
 // Common stroke properties for consistent icon styling
 const Stroke = { 
@@ -106,11 +103,19 @@ const fmtDate = (value) => {
   if (!value) return "";
   
   try {
-    return new Date(value).toLocaleDateString(undefined, { 
+    // Handle both date strings and Date objects
+    const date = typeof value === 'string' ? new Date(value) : value;
+    
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+    
+    return date.toLocaleDateString(undefined, { 
       month: 'short',
       day: 'numeric'
     });
   } catch (error) {
+    console.warn('Date formatting error:', value, error);
     return "";
   }
 };
@@ -291,6 +296,12 @@ export default function Records() {
     load(); 
   }, []);
 
+  // Auto-refresh data every 30 seconds to keep trends current
+  useEffect(() => {
+    const refreshInterval = setInterval(load, 30000);
+    return () => clearInterval(refreshInterval);
+  }, []);
+
   // ========================================
   // Analytics Functions
   // ========================================
@@ -345,25 +356,56 @@ export default function Records() {
       ...claimList.map(c => ({ ...c, type: 'Claims' }))
     ];
 
+    // Process all records and extract dates
     allRecords.forEach(record => {
-      const date = new Date(record.createdAt || record.date || record.requestedAt);
-      const dateKey = date.toISOString().split('T')[0];
+      // Try different date field names for different record types
+      let dateValue = null;
       
-      if (!trends[dateKey]) {
-        trends[dateKey] = { Reports: 0, Aid: 0, Claims: 0 };
+      if (record.type === 'Reports') {
+        dateValue = record.createdAt || record.date || record.occurredAt || record.reportedAt;
+      } else if (record.type === 'Aid') {
+        dateValue = record.createdAt || record.requestedAt || record.date;
+      } else if (record.type === 'Claims') {
+        dateValue = record.createdAt || record.occurredAt || record.date;
       }
-      trends[dateKey][record.type]++;
+      
+      if (dateValue) {
+        try {
+          const date = new Date(dateValue);
+          if (!isNaN(date.getTime())) {
+            // Use local date to avoid timezone issues
+            const dateKey = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            
+            if (!trends[dateKey]) {
+              trends[dateKey] = { Reports: 0, Aid: 0, Claims: 0 };
+            }
+            trends[dateKey][record.type]++;
+          }
+        } catch (error) {
+          console.warn('Invalid date format:', dateValue, error);
+        }
+      }
     });
 
-    return Object.entries(trends)
-      .sort(([a], [b]) => new Date(a) - new Date(b))
-      .slice(-7) // Last 7 days
-      .map(([date, counts]) => ({
-        label: fmtDate(date),
-        Reports: counts.Reports,
-        Aid: counts.Aid,
-        Claims: counts.Claims
-      }));
+    // Generate last 7 days including today, ensuring no gaps
+    const last7Days = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateKey = date.toLocaleDateString('en-CA');
+      
+      last7Days.push({
+        dateKey,
+        label: fmtDate(dateKey),
+        Reports: trends[dateKey]?.Reports || 0,
+        Aid: trends[dateKey]?.Aid || 0,
+        Claims: trends[dateKey]?.Claims || 0
+      });
+    }
+
+    return last7Days;
   };
 
   /**
@@ -813,6 +855,9 @@ export default function Records() {
               <div className="chart-header">
                 <h3>Daily Submission Trends</h3>
                 <div className="chart-actions">
+                  <span className="live-indicator" title="Auto-refreshes every 30 seconds">
+                    🔴 Live
+                  </span>
                   <button 
                     className="btn-icon"
                     onClick={() => downloadPDF(dailyTrends, 'daily-trends', 'Daily Trends Analysis', 'trends')}

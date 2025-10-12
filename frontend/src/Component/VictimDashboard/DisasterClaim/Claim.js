@@ -390,7 +390,7 @@ export default function Claim() {
               value={form.occurredAt}
               onChange={setVal}
               onBlur={() => onBlurValidate("occurredAt")}
-              max={new Date().toISOString().slice(0, 16)}
+              max={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
               required
             />
             {errors.occurredAt && <p className="error">{errors.occurredAt}</p>}
