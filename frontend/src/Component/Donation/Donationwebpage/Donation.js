@@ -833,6 +833,9 @@ export default function Donation() {
                 <article key={d.key} className="donation-card">
                   <div className="donation-media">
                     <MiniRotator images={d.imgs} alt={d.name} />
+                    <span className="donation-location-tag">
+                      📍 {d.city}
+                    </span>
                     <span className="donation-badge" style={{backgroundColor: getSeverityColor(d.severity)}}>
                       {d.city}
                     </span>
@@ -866,7 +869,7 @@ export default function Donation() {
                       Support this cause
                     </button>
                     <button
-                      className="pill ghost"
+                      className="pill ghost donation-find-nearby-btn"
                       onClick={() =>
                         window.open(
                           `https://www.google.com/maps/search/${encodeURIComponent(
