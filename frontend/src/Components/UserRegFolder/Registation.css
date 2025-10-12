@@ -1,99 +1,117 @@
-/* =========================================
-   Registation.css
-   - Page/card layout
-   - Centered header with icon
-   - Floating-label form system (.ar-*)
-   ========================================= */
+/* src/pages/Registation/Registation.css */
 
 /* Safety */
 *,
 *::before,
-*::after { box-sizing: border-box; }
-
-/* ---------- Theme vars ---------- */
-:root{
-  --line:#E2E8F0;
-  --text:#0F172A;
-  --sub:#475569;
-  --emerald:#059669;
-  --emerald-700:#047857;
-  --emerald-900:#064E3B;
-  --bg:#ffffff;
+*::after {
+  box-sizing: border-box;
 }
 
-/* ---------- Page wrap ---------- */
-.reg-page{
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:24px;
+/* Theme */
+:root {
+  --line: #E2E8F0;
+  --text: #0F172A;
+  --sub: #475569;
+  --emerald: #059669;
+  --emerald-700: #047857;
+  --emerald-900: #064E3B;
+  --bg: #ffffff;
+}
+
+/* Page */
+.reg-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
   background:
     radial-gradient(900px 650px at 15% -10%, #eef4ff 0%, transparent 60%),
     radial-gradient(900px 700px at 110% 110%, #ecfff7 0%, transparent 55%),
     linear-gradient(180deg, #f6f8fb 0%, #ffffff 100%);
-  color:var(--text);
+  color: var(--text);
 }
 
-/* ---------- Card ---------- */
-.reg-card{
-  width:min(640px, 94vw);
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  box-shadow:0 14px 40px rgba(2,8,23,.08);
-  padding:24px;
-  animation: reg-pop 360ms cubic-bezier(.16,1,.3,1);
-}
-@media(min-width:640px){ .reg-card{ padding:28px; } }
-
-/* ---------- Centered header ---------- */
-.reg-header{
-  text-align:center;
-  margin:6px 0 18px;
-}
-.reg-hero{
-  width:56px; height:56px;
-  display:inline-grid; place-items:center;
-  margin:2px auto 10px;
-  border-radius:16px;
-  background: linear-gradient(180deg,#EEF2FF,#E0EAFF);
-  box-shadow: 0 6px 18px rgba(30,58,138,.15), inset 0 -2px 0 rgba(0,0,0,.03);
-}
-.reg-header h1{
-  margin:0 0 6px;
-  font-size:clamp(22px,2.8vw,28px);
-  font-weight:900;
-  letter-spacing:-.2px;
-  color:#1E3A8A; /* deep blue like your login title */
-}
-.reg-header .subtitle{
-  margin:0;
-  color:var(--sub);
-  font-size:14px;
-  line-height:1.35;
+/* Card */
+.reg-card {
+  width: min(640px, 94vw);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 14px 40px rgba(2, 8, 23, .08);
+  padding: 24px;
+  animation: reg-pop 360ms cubic-bezier(.16, 1, .3, 1);
 }
 
-/* ---------- Pop animation ---------- */
-@keyframes reg-pop{
-  0% { transform: translateY(8px) scale(.98); opacity: 0; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
+@media(min-width:640px) {
+  .reg-card {
+    padding: 28px;
+  }
 }
 
-/* ---------- Helper link under form ---------- */
-.login-link{
-  margin-top:12px;
-  font-size:14px;
-  color:var(--sub);
-  text-align:center;
+/* Header */
+.reg-header {
+  text-align: center;
+  margin: 6px 0 18px;
 }
-.login-link a{ color:var(--emerald-900); text-decoration:none; font-weight:700; }
-.login-link a:hover{ text-decoration:underline; }
 
-/* ========================================================
-   Floating-label Form System (namespace: .ar-*)
-   ======================================================== */
+.reg-hero {
+  width: 56px;
+  height: 56px;
+  display: inline-grid;
+  place-items: center;
+  margin: 2px auto 10px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #EEF2FF, #E0EAFF);
+  box-shadow: 0 6px 18px rgba(30, 58, 138, .15), inset 0 -2px 0 rgba(0, 0, 0, .03);
+}
 
-/* Form grid */
+.reg-header h1 {
+  margin: 0 0 6px;
+  font-size: clamp(22px, 2.8vw, 28px);
+  font-weight: 900;
+  letter-spacing: -.2px;
+  color: #1E3A8A;
+}
+
+.reg-header .subtitle {
+  margin: 0;
+  color: var(--sub);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+/* Anim */
+@keyframes reg-pop {
+  0% {
+    transform: translateY(8px) scale(.98);
+    opacity: 0
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1
+  }
+}
+
+/* Under-form link */
+.login-link {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--sub);
+  text-align: center;
+}
+
+.login-link a {
+  color: var(--emerald-900);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* Form */
 .ar-form {
   display: grid;
   gap: 18px;
@@ -101,14 +119,13 @@
   max-width: 100%;
 }
 
-/* Field wrapper */
 .ar-field {
   position: relative;
   width: 100%;
   max-width: 100%;
 }
 
-/* Inputs & Selects */
+/* Inputs / Selects */
 .ar-input,
 .ar-select {
   height: 52px;
@@ -118,24 +135,28 @@
   border: 1px solid #cbd5e1;
   background: #fff;
   color: #0f172a;
-  padding: 0 14px; /* adjusted by helpers below */
+  padding: 0 14px;
   outline: none;
   transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
   background-clip: padding-box;
-  font-size: 0.98rem;
+  font-size: .98rem;
 }
 
-/* Hide placeholder (we float labels) */
-.ar-input::placeholder { color: transparent; }
+.ar-input::placeholder {
+  color: transparent;
+}
 
-/* Hover/Focus */
-.ar-input:hover, .ar-select:hover { border-color: #b8c4d6; }
-.ar-input:focus, .ar-select:focus {
+.ar-input:hover,
+.ar-select:hover {
+  border-color: #b8c4d6;
+}
+
+.ar-input:focus,
+.ar-select:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
 }
 
-/* Emphasize whole field when focusing inner control */
 .ar-field:focus-within .ar-input,
 .ar-field:focus-within .ar-select,
 .ar-field:focus-within .ar-textarea {
@@ -143,20 +164,44 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
 }
 
-/* Padding helpers for icons/affixes */
-.ar-input.has-left  { padding-left: 42px; }
-.ar-input.has-right { padding-right: 96px; } /* extra for Show button */
-
-/* Icon / affix wrappers */
-.ar-input-wrap { position: relative; width: 100%; max-width: 100%; }
-.ar-left {
-  position: absolute; top: 50%; left: 12px; transform: translateY(-50%);
-  color: #64748b; pointer-events: none;
+/* Padding helpers */
+.ar-input.has-left {
+  padding-left: 42px;
 }
-.ar-input-wrap svg { width: 18px; height: 18px; }
+
+.ar-input.has-right {
+  padding-right: 96px;
+}
+
+/* Affixes */
+.ar-input-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.ar-left {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.ar-input-wrap svg {
+  width: 18px;
+  height: 18px;
+}
+
 .ar-right {
-  position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
-  display: inline-flex; align-items: center; gap: 6px;
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Floating label */
@@ -167,7 +212,7 @@
   transform: translateY(-50%);
   transform-origin: left top;
   line-height: 1;
-  font-size: 0.96rem;
+  font-size: .96rem;
   color: #64748b;
   background: transparent;
   padding: 0 4px;
@@ -175,24 +220,26 @@
   transition: transform .15s ease, color .15s ease, font-size .15s ease, top .15s ease;
 }
 
-/* If input has a left icon, shift label */
-.ar-input.has-left + .ar-float { left: 42px; }
-
-/* Float when value present or focused */
-.ar-input:not(:placeholder-shown) + .ar-float,
-.ar-input:focus + .ar-float,
-.ar-select.has-value + .ar-float,
-.ar-select:focus + .ar-float,
-.ar-textarea:not(:placeholder-shown) + .ar-float,
-.ar-textarea:focus + .ar-float {
-  top: -2px; /* slightly higher for crisp feel */
-  transform: translateY(-55%) scale(.88);
-  font-size: 0.78rem;
-  color: #2563eb;
-  background: #fff; /* sits on top of border neatly */
+/* Shift label when left icon present */
+.ar-input.has-left~.ar-float {
+  left: 42px;
 }
 
-/* Select arrow styling */
+/* FLOAT RULES — use general sibling (~) so label floats even with .ar-right between input and label */
+.ar-input:not(:placeholder-shown)~.ar-float,
+.ar-input:focus~.ar-float,
+.ar-select.has-value~.ar-float,
+.ar-select:focus~.ar-float,
+.ar-textarea:not(:placeholder-shown)~.ar-float,
+.ar-textarea:focus~.ar-float {
+  top: -2px;
+  transform: translateY(-55%) scale(.88);
+  font-size: .78rem;
+  color: #2563eb;
+  background: #fff;
+}
+
+/* Select arrow */
 .ar-select {
   appearance: none;
   -webkit-appearance: none;
@@ -201,16 +248,13 @@
     linear-gradient(45deg, transparent 50%, #64748b 50%),
     linear-gradient(135deg, #64748b 50%, transparent 50%),
     linear-gradient(to right, #cbd5e1, #cbd5e1);
-  background-position:
-    calc(100% - 20px) 52%,
-    calc(100% - 14px) 52%,
-    calc(100% - 40px) 50%;
+  background-position: calc(100% - 20px) 52%, calc(100% - 14px) 52%, calc(100% - 40px) 50%;
   background-size: 6px 6px, 6px 6px, 1px 60%;
   background-repeat: no-repeat;
-  padding-right: 48px; /* space for arrow */
+  padding-right: 48px;
 }
 
-/* ---- Textarea (optional) ---- */
+/* Textarea (optional) */
 .ar-textarea {
   min-height: 110px;
   width: 100%;
@@ -224,39 +268,46 @@
   resize: vertical;
   transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
   background-clip: padding-box;
-  font-size: 0.98rem;
-}
-.ar-textarea:hover { border-color: #b8c4d6; }
-.ar-textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.18); }
-
-/* Float label for textarea */
-.ar-textarea:not(:placeholder-shown) + .ar-float,
-.ar-textarea:focus + .ar-float {
-  top: -2px;
-  transform: translateY(-55%) scale(.88);
-  font-size: 0.78rem;
-  color: #2563eb;
-  background: #ffffff;
+  font-size: .98rem;
 }
 
-/* Helper / error text */
-.ar-help { font-size: 0.85rem; color: #64748b; margin-top: 8px; }
-.ar-error-text { font-size: 0.85rem; color: #b91c1c; margin-top: 4px; }
+.ar-textarea:hover {
+  border-color: #b8c4d6;
+}
 
-/* Error / success borders */
+.ar-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+/* Helper / error */
+.ar-help {
+  font-size: .85rem;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+.ar-error-text {
+  font-size: .85rem;
+  color: #b91c1c;
+  margin-top: 4px;
+}
+
+/* Error / success state */
 .ar-field.error .ar-input,
 .ar-field.error .ar-select,
 .ar-field.error .ar-textarea {
   border-color: #ef4444;
   box-shadow: 0 0 0 2px rgba(239, 68, 68, .12);
 }
+
 .ar-field.success .ar-input,
 .ar-field.success .ar-select,
 .ar-field.success .ar-textarea {
   border-color: #10b981;
 }
 
-/* Password strength bar (hidden until active) */
+/* Strength bar */
 .ar-strength {
   display: none;
   grid-template-columns: repeat(4, 1fr);
@@ -265,24 +316,36 @@
   width: 100%;
   max-width: 100%;
 }
+
 .ar-strength span {
   height: 6px;
   border-radius: 4px;
   background: #e2e8f0;
   transition: background .25s ease;
 }
-.ar-strength[data-score="1"] span:nth-child(-n+1) { background: #ef4444; }
-.ar-strength[data-score="2"] span:nth-child(-n+2) { background: #f59e0b; }
-.ar-strength[data-score="3"] span:nth-child(-n+3) { background: #10b981; }
-.ar-strength[data-score="4"] span:nth-child(-n+4) { background: #059669; }
 
-/* Show strength bar when password focused or has value */
+.ar-strength[data-score="1"] span:nth-child(-n+1) {
+  background: #ef4444;
+}
+
+.ar-strength[data-score="2"] span:nth-child(-n+2) {
+  background: #f59e0b;
+}
+
+.ar-strength[data-score="3"] span:nth-child(-n+3) {
+  background: #10b981;
+}
+
+.ar-strength[data-score="4"] span:nth-child(-n+4) {
+  background: #059669;
+}
+
 .ar-field:has(#password:focus) .ar-strength,
 .ar-field:has(#password:not(:placeholder-shown)) .ar-strength {
   display: grid;
 }
 
-/* Form primary button (blue gradient) */
+/* Primary button */
 .ar-btn {
   height: 46px;
   border: none;
@@ -293,14 +356,26 @@
   letter-spacing: .2px;
   cursor: pointer;
   transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, .25);
   width: 100%;
 }
-.ar-btn:hover { filter: brightness(1.03); box-shadow: 0 16px 40px rgba(20, 40, 80, 0.12); }
-.ar-btn:active { transform: translateY(1px) scale(.99); }
-.ar-btn[disabled] { opacity:.6; cursor:not-allowed; box-shadow:none; }
 
-/* Small inline button (Show/Hide) */
+.ar-btn:hover {
+  filter: brightness(1.03);
+  box-shadow: 0 16px 40px rgba(20, 40, 80, .12);
+}
+
+.ar-btn:active {
+  transform: translateY(1px) scale(.99);
+}
+
+.ar-btn[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Small inline button */
 .ar-icon-btn {
   border: 1px solid #cbd5e1;
   background: #f8fafc;
@@ -313,14 +388,28 @@
   align-items: center;
   line-height: 1;
 }
-.ar-icon-btn:hover { background: #f1f5f9; }
+
+.ar-icon-btn:hover {
+  background: #f1f5f9;
+}
 
 /* Motion prefs */
 @media (prefers-reduced-motion: reduce) {
-  .reg-card, .ar-input, .ar-btn, .ar-textarea { transition: none !important; animation: none !important; }
+
+  .reg-card,
+  .ar-input,
+  .ar-btn,
+  .ar-textarea {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* Small screens */
-@media (max-width: 400px) {
-  .ar-input, .ar-select { height: 50px; }
+@media (max-width:400px) {
+
+  .ar-input,
+  .ar-select {
+    height: 50px;
+  }
 }

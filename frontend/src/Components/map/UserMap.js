@@ -411,6 +411,276 @@ function UserMap() {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
+          
+          .popup-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            min-width: 280px;
+            max-width: 320px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+          
+          .popup-card h2 {
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+          }
+          
+          .popup-card h2::before {
+            content: "📍";
+            font-size: 20px;
+            margin-right: 8px;
+          }
+          
+          .popup-card p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #475569;
+          }
+          
+          .popup-card p b {
+            color: #1e293b;
+            font-weight: 600;
+          }
+          
+          .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .severity-low {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 1px solid #86efac;
+          }
+          
+          .severity-moderate {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 1px solid #fcd34d;
+          }
+          
+          .severity-high {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #f87171;
+          }
+          
+          .severity-critical {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #831843;
+            border: 1px solid #f472b6;
+          }
+          
+          .popup-card button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .popup-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          }
+          
+          .popup-card button::after {
+            content: "→";
+            margin-left: 8px;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+          }
+          
+          .popup-card button:hover::after {
+            transform: translateX(4px);
+          }
+          
+          .shelter-popup {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(15px);
+            min-width: 320px;
+            max-width: 380px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+          
+          .shelter-popup h2 {
+            color: #1e40af;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #dbeafe;
+            display: flex;
+            align-items: center;
+          }
+          
+          .shelter-popup h2::before {
+            content: "🏠";
+            font-size: 24px;
+            margin-right: 10px;
+          }
+          
+          .shelter-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .info-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+          }
+          
+          .info-item:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          }
+          
+          .info-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .info-value {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.5;
+            font-weight: 500;
+          }
+          
+          .capacity-info .info-value {
+            color: #059669;
+            font-weight: 700;
+            font-size: 16px;
+          }
+          
+          .facilities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+          }
+          
+          .facility-tag {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #93c5fd;
+            white-space: nowrap;
+          }
+          
+          .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          
+          .contact-item {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            border-left: 4px solid #3b82f6;
+          }
+          
+          .contact-item.phone {
+            border-left-color: #10b981;
+          }
+          
+          .contact-item.email {
+            border-left-color: #f59e0b;
+          }
+          
+          .contact-item.phone::before {
+            content: "📞 ";
+            margin-right: 6px;
+          }
+          
+          .contact-item.email::before {
+            content: "📧 ";
+            margin-right: 6px;
+          }
+          
+          /* Mapbox popup customization */
+          .mapboxgl-popup-content {
+            padding: 0 !important;
+            border-radius: 20px !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+            background: transparent !important;
+          }
+          
+          .mapboxgl-popup-tip {
+            border-top-color: #ffffff !important;
+          }
+          
+          .mapboxgl-popup-close-button {
+            font-size: 20px !important;
+            padding: 8px !important;
+            color: #64748b !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 50% !important;
+            right: 8px !important;
+            top: 8px !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease !important;
+          }
+          
+          .mapboxgl-popup-close-button:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #dc2626 !important;
+            transform: scale(1.1) !important;
+          }
         `}
       </style>
       

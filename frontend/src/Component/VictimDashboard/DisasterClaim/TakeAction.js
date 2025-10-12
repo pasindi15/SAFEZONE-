@@ -20,6 +20,8 @@ export default function TakeAction() {
     notes: ''
   });
   const [loading, setLoading] = useState(true);
+  const [showFinancialForm, setShowFinancialForm] = useState(false);
+  const [financialMessage, setFinancialMessage] = useState('');
 
   // Load claim data
   useEffect(() => {
@@ -47,94 +49,494 @@ export default function TakeAction() {
     loadClaim();
   }, [id]);
 
-  // Generate PDF report
+  // Generate PDF report with CSS styling
   const generateReport = () => {
     if (!claim) return;
 
-    const doc = new jsPDF();
-    
-    // Header
-    doc.setFontSize(20);
-    doc.setFont(undefined, 'bold');
-    doc.text('DAMAGE CLAIM ACTION REPORT', 20, 20);
-    
-    // Report details
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 20, 35);
-    doc.text(`Claim ID: ${claim._id}`, 20, 45);
-    
-    // Claimant information
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('CLAIMANT INFORMATION', 20, 65);
-    
-    const claimantData = [
-      ['Name', claim.name || 'N/A'],
-      ['NIC', claim.nic || 'N/A'],
-      ['Email', claim.email || 'N/A'],
-      ['Phone', claim.phone || 'N/A'],
-      ['Address', claim.address || 'N/A']
-    ];
-
-    autoTable(doc, {
-      startY: 70,
-      head: [['Field', 'Value']],
-      body: claimantData,
-      theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] }
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long',
+      day: 'numeric'
     });
-
-    // Damage information
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('DAMAGE INFORMATION', 20, doc.lastAutoTable.finalY + 20);
     
-    const damageData = [
-      ['Damage Type', claim.damageType || 'N/A'],
-      ['Estimated Loss', claim.estimatedLoss || 'N/A'],
-      ['Occurred At', claim.occurredAt ? new Date(claim.occurredAt).toLocaleDateString() : 'N/A'],
-      ['Location', claim.currentLocation || 'N/A'],
-      ['Description', claim.description || 'N/A']
-    ];
-
-    autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 25,
-      head: [['Field', 'Value']],
-      body: damageData,
-      theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] }
-    });
-
-    // Action taken
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('ACTION TAKEN', 20, doc.lastAutoTable.finalY + 20);
+    const referenceNumber = `SZ-DC-${claim._id?.slice(-8).toUpperCase() || 'UNKNOWN'}`;
     
-    const actionData = [
-      ['Action Type', actionForm.actionType || 'N/A'],
-      ['Priority', actionForm.priority || 'N/A'],
-      ['Compensation Amount', actionForm.compensationAmount || 'N/A'],
-      ['Financial Recommendation', actionForm.financialRecommendation || 'N/A'],
-      ['Description', actionForm.description || 'N/A'],
-      ['Internal Notes', actionForm.notes || 'N/A']
-    ];
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Official Damage Claim Report - ${claim.name}</title>
+      <style>
+        @media print {
+          @page {
+            margin: 0.75in;
+            size: A4;
+          }
+        }
+        
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: 'Times New Roman', serif;
+          line-height: 1.6;
+          color: #000;
+          background: #fff;
+          padding: 40px;
+          max-width: 800px;
+          margin: 0 auto;
+          font-size: 14px;
+        }
+        
+        .letterhead {
+          text-align: center;
+          margin-bottom: 40px;
+          padding-bottom: 25px;
+          border-bottom: 3px double #000;
+          position: relative;
+        }
+        
+        .government-seal {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+          border-radius: 50%;
+          margin: 0 auto 15px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 24px;
+          border: 3px solid #000;
+        }
+        
+        .org-name {
+          font-size: 24px;
+          font-weight: bold;
+          color: #000;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+        
+        .org-subtitle {
+          font-size: 16px;
+          color: #333;
+          margin-bottom: 15px;
+          font-style: italic;
+        }
+        
+        .org-address {
+          font-size: 12px;
+          color: #555;
+          line-height: 1.4;
+        }
+        
+        .document-header {
+          margin: 30px 0;
+          text-align: center;
+        }
+        
+        .doc-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #000;
+          text-transform: uppercase;
+          text-decoration: underline;
+          margin-bottom: 10px;
+        }
+        
+        .ref-info {
+          display: flex;
+          justify-content: space-between;
+          margin: 25px 0;
+          font-size: 12px;
+          color: #333;
+        }
+        
+        .ref-number {
+          font-weight: bold;
+        }
+        
+        .main-content {
+          margin: 40px 0;
+          line-height: 1.8;
+        }
+        
+        .section-title {
+          font-size: 16px;
+          font-weight: bold;
+          color: #000;
+          margin: 25px 0 15px 0;
+          text-transform: uppercase;
+          border-bottom: 1px solid #000;
+          padding-bottom: 5px;
+        }
+        
+        .info-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+          font-size: 14px;
+        }
+        
+        .info-table th,
+        .info-table td {
+          border: 1px solid #000;
+          padding: 12px;
+          text-align: left;
+          vertical-align: top;
+        }
+        
+        .info-table th {
+          background-color: #f0f0f0;
+          font-weight: bold;
+          width: 30%;
+        }
+        
+        .damage-box {
+          border: 2px solid #dc2626;
+          padding: 20px;
+          margin: 25px 0;
+          background-color: #fef2f2;
+        }
+        
+        .damage-text {
+          font-style: italic;
+          line-height: 1.8;
+          text-align: justify;
+        }
+        
+        .action-box {
+          border: 2px solid #059669;
+          padding: 20px;
+          margin: 25px 0;
+          background-color: #f0fdf4;
+        }
+        
+        .action-text {
+          line-height: 1.8;
+          text-align: justify;
+        }
+        
+        .certification {
+          margin: 40px 0 30px 0;
+          padding: 20px;
+          border: 1px solid #000;
+          background-color: #f9f9f9;
+        }
+        
+        .cert-text {
+          text-align: justify;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        
+        .signature-section {
+          margin-top: 60px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+        }
+        
+        .signature-box {
+          width: 250px;
+          text-align: center;
+        }
+        
+        .signature-line {
+          border-bottom: 2px solid #000;
+          height: 60px;
+          margin-bottom: 10px;
+          position: relative;
+        }
+        
+        .signature-text {
+          font-size: 12px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        
+        .designation {
+          font-size: 11px;
+          color: #333;
+          font-style: italic;
+        }
+        
+        .date-stamp {
+          border: 2px solid #000;
+          padding: 15px;
+          text-align: center;
+          width: 150px;
+          margin-left: auto;
+        }
+        
+        .date-label {
+          font-size: 11px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        
+        .date-value {
+          font-size: 14px;
+          font-weight: bold;
+        }
+        
+        .footer-info {
+          margin-top: 50px;
+          font-size: 10px;
+          text-align: center;
+          color: #666;
+          border-top: 1px solid #ccc;
+          padding-top: 15px;
+        }
+        
+        .confidential {
+          position: absolute;
+          top: 20px;
+          right: 0;
+          transform: rotate(15deg);
+          color: #dc2626;
+          font-weight: bold;
+          font-size: 18px;
+          border: 2px solid #dc2626;
+          padding: 5px 10px;
+          background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .status-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+        
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-investigation { background: #dbeafe; color: #1e40af; }
+        
+        @media print {
+          body {
+            padding: 20px;
+          }
+          
+          .signature-section {
+            page-break-inside: avoid;
+          }
+          
+          .certification {
+            page-break-inside: avoid;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="confidential">OFFICIAL</div>
+      
+      <div class="letterhead">
+        <div class="government-seal">SZ</div>
+        <div class="org-name">SafeZone Disaster Management System</div>
+        <div class="org-subtitle">Damage Claims Assessment & Processing Division</div>
+        <div class="org-address">
+          123 Emergency Response Boulevard, Crisis Management District<br>
+          National Disaster Coordination Center, Emergency City, EC 12345<br>
+          Tel: +1-800-SAFEZONE | Email: claims@safezone.gov | Web: www.safezone.gov
+        </div>
+      </div>
+      
+      <div class="document-header">
+        <div class="doc-title">Official Damage Claim Assessment Report</div>
+      </div>
+      
+      <div class="ref-info">
+        <div>
+          <span class="ref-number">Reference No: ${referenceNumber}</span><br>
+          Claim ID: ${claim._id || 'N/A'}
+        </div>
+        <div>
+          <strong>Date Issued: ${currentDate}</strong><br>
+          Classification: Official Use
+        </div>
+      </div>
+      
+      <div class="main-content">
+        <div class="section-title">Claimant Information</div>
+        
+        <table class="info-table">
+          <tr>
+            <th>Full Name</th>
+            <td>${claim.name || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>National ID (NIC)</th>
+            <td>${claim.nic || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>Email Address</th>
+            <td>${claim.email || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>Phone Number</th>
+            <td>${claim.phone || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>Address</th>
+            <td>${claim.address || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>Location of Damage</th>
+            <td>${claim.currentLocation || 'Not Provided'}</td>
+          </tr>
+          <tr>
+            <th>Claim Submitted</th>
+            <td>${new Date(claim.reportedAt || claim.createdAt).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}</td>
+          </tr>
+          <tr>
+            <th>Submission Time</th>
+            <td>${new Date(claim.reportedAt || claim.createdAt).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZoneName: 'short'
+            })}</td>
+          </tr>
+        </table>
+        
+        <div class="section-title">Damage Details & Assessment</div>
+        
+        <table class="info-table">
+          <tr>
+            <th>Type of Damage</th>
+            <td>${claim.damageType || 'Not Specified'}</td>
+          </tr>
+          <tr>
+            <th>Estimated Loss Value</th>
+            <td><strong>${claim.estimatedLoss || 'Not Assessed'}</strong></td>
+          </tr>
+          <tr>
+            <th>Date of Occurrence</th>
+            <td>${claim.occurredAt ? new Date(claim.occurredAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) : 'Not Specified'}</td>
+          </tr>
+          <tr>
+            <th>Current Status</th>
+            <td>
+              <span class="status-badge ${actionForm.actionType ? `status-${actionForm.actionType.toLowerCase().replace(/\s+/g, '-')}` : 'status-pending'}">
+                ${actionForm.actionType || 'Under Review'}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th>Priority Level</th>
+            <td><strong>${actionForm.priority ? actionForm.priority.toUpperCase() : 'MEDIUM'}</strong></td>
+          </tr>
+        </table>
+        
+        <div class="section-title">Damage Description</div>
+        
+        <div class="damage-box">
+          <div class="damage-text">
+            "${claim.description || 'No detailed description provided by claimant.'}"
+          </div>
+        </div>
+        
+        ${actionForm.actionType ? `
+        <div class="section-title">Official Action Taken</div>
+        
+        <table class="info-table">
+          <tr>
+            <th>Action Type</th>
+            <td><strong>${actionForm.actionType}</strong></td>
+          </tr>
+          <tr>
+            <th>Assessment Date</th>
+            <td>${currentDate}</td>
+          </tr>
+          <tr>
+            <th>Approved Compensation</th>
+            <td>${actionForm.compensationAmount || 'Not Applicable'}</td>
+          </tr>
+          <tr>
+            <th>Processing Priority</th>
+            <td>${actionForm.priority.toUpperCase()}</td>
+          </tr>
+        </table>
+        
+        <div class="action-box">
+          <div class="action-text">
+            <strong>Assessment Decision:</strong> ${actionForm.description || 'No action description provided.'}
+          </div>
+          ${actionForm.financialRecommendation ? `
+          <br><br>
+          <div class="action-text">
+            <strong>Financial Recommendation:</strong> ${actionForm.financialRecommendation}
+          </div>
+          ` : ''}
+          ${actionForm.notes ? `
+          <br><br>
+          <div class="action-text">
+            <strong>Internal Processing Notes:</strong> ${actionForm.notes}
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
+        
+        <div class="certification">
+          <div class="cert-text">
+            <strong>CERTIFICATION:</strong> This document certifies that the above damage claim has been officially processed by the SafeZone Disaster Management System. The assessment has been conducted in accordance with established protocols and guidelines. This report serves as an official record of the claim evaluation and any actions taken. All information contained herein is accurate as of the date of issuance and has been verified by authorized personnel.
+          </div>
+        </div>
+      </div>
+      
+      <div class="signature-section">
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-text">Claims Assessor</div>
+          <div class="designation">SafeZone Claims Processing Division</div>
+        </div>
+        
+        <div class="date-stamp">
+          <div class="date-label">OFFICIAL SEAL</div>
+          <div class="date-value">${currentDate}</div>
+        </div>
+      </div>
+      
+      <div class="footer-info">
+        This is an automatically generated official document from SafeZone DMS.<br>
+        For verification, contact: verification@safezone.gov | Reference: ${referenceNumber}<br>
+        © SafeZone Disaster Management System - All Rights Reserved
+      </div>
+    </body>
+    </html>
+    `;
 
-    autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 25,
-      head: [['Field', 'Value']],
-      body: actionData,
-      theme: 'grid',
-      headStyles: { fillColor: [231, 76, 60] }
-    });
-
-    // Footer
-    doc.setFontSize(10);
-    doc.text('Generated by SafeZone Disaster Management System', 20, doc.internal.pageSize.height - 20);
-    doc.text(`Page 1 of 1`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 20);
-
-    // Save the PDF
-    doc.save(`claim-action-report-${claim._id}.pdf`);
+    // Create a new window and write the HTML content
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    setTimeout(() => {
+      printWindow.print();
+    }, 1000);
   };
 
   // Send email to victim
@@ -178,9 +580,9 @@ Phone: +94 11 234 5678`;
   // Send to financial unit
   const sendToFinancialUnit = () => {
     if (!claim) return;
-
-    const subject = `Financial Review Required - Damage Claim ${claim._id}`;
-    const message = `Dear Financial Unit,
+    
+    // Set default message with claim details
+    const defaultMessage = `Dear Financial Unit,
 
 A damage claim requires your review and financial processing.
 
@@ -197,28 +599,41 @@ DAMAGE DETAILS:
 - Location: ${claim.currentLocation}
 
 RECOMMENDED ACTION:
-- Action Type: ${actionForm.actionType}
+- Action Type: ${actionForm.actionType || 'Not specified'}
 - Priority: ${actionForm.priority}
-- Recommended Compensation: ${actionForm.compensationAmount}
-- Financial Recommendation: ${actionForm.financialRecommendation}
+- Recommended Compensation: ${actionForm.compensationAmount || 'Not specified'}
+- Financial Recommendation: ${actionForm.financialRecommendation || 'Not specified'}
 
 ASSESSMENT NOTES:
-${actionForm.description}
+${actionForm.description || 'No assessment notes provided'}
 
 INTERNAL NOTES:
-${actionForm.notes}
+${actionForm.notes || 'No internal notes'}
 
-Please review this claim and process the financial aspects accordingly. A detailed PDF report has been generated and should be attached to this email.
-
-For any clarifications, please contact the disaster management team.
+Please review this claim and process the financial aspects accordingly.
 
 Best regards,
 Disaster Management Team
 SafeZone DMS`;
 
+    setFinancialMessage(defaultMessage);
+    setShowFinancialForm(true);
+  };
+
+  // Actually send the financial email
+  const handleFinancialSubmit = () => {
+    if (!financialMessage.trim()) {
+      alert('Please enter a message before sending.');
+      return;
+    }
+
+    const subject = `Financial Review Required - Damage Claim ${claim._id}`;
     const financialEmail = 'finance@safezone.lk'; // You can make this configurable
-    const emailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(financialEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    const emailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(financialEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(financialMessage)}`;
+    
     window.open(emailUrl, '_blank');
+    setShowFinancialForm(false);
+    setFinancialMessage('');
   };
 
   // Complete action
@@ -647,6 +1062,105 @@ SafeZone DMS`;
       fontWeight: 600,
       fontSize: '14px',
       transition: 'all 0.3s ease'
+    },
+    // Financial Form Modal Styles
+    modal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    },
+    modalContent: {
+      background: 'white',
+      borderRadius: '20px',
+      padding: '32px',
+      maxWidth: '800px',
+      width: '100%',
+      maxHeight: '90vh',
+      overflow: 'auto',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+      border: '1px solid #e2e8f0'
+    },
+    modalHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '24px',
+      paddingBottom: '16px',
+      borderBottom: '2px solid #e2e8f0'
+    },
+    modalTitle: {
+      fontSize: '1.5rem',
+      fontWeight: 700,
+      color: '#1e293b',
+      margin: 0
+    },
+    closeButton: {
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      color: '#64748b',
+      padding: '8px',
+      borderRadius: '8px',
+      transition: 'all 0.3s ease'
+    },
+    modalBody: {
+      marginBottom: '24px'
+    },
+    modalLabel: {
+      display: 'block',
+      fontWeight: 600,
+      color: '#374151',
+      marginBottom: '8px',
+      fontSize: '14px'
+    },
+    modalTextarea: {
+      width: '100%',
+      minHeight: '400px',
+      padding: '16px',
+      border: '2px solid #e5e7eb',
+      borderRadius: '12px',
+      fontSize: '14px',
+      fontFamily: 'inherit',
+      lineHeight: 1.6,
+      resize: 'vertical',
+      transition: 'all 0.3s ease',
+      background: '#fafbfc'
+    },
+    modalFooter: {
+      display: 'flex',
+      gap: '12px',
+      justifyContent: 'flex-end'
+    },
+    btnCancel: {
+      background: 'linear-gradient(135deg, #64748b, #475569)',
+      color: 'white',
+      padding: '12px 24px',
+      border: 'none',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      fontWeight: 600,
+      fontSize: '14px',
+      transition: 'all 0.3s ease'
+    },
+    btnSend: {
+      background: 'linear-gradient(135deg, #059669, #047857)',
+      color: 'white',
+      padding: '12px 24px',
+      border: 'none',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      fontWeight: 600,
+      fontSize: '14px',
+      transition: 'all 0.3s ease'
     }
   };
 
@@ -887,6 +1401,69 @@ SafeZone DMS`;
         </div>
       </div>
     </div>
+
+    {/* Financial Form Modal */}
+    {showFinancialForm && (
+      <div style={styles.modal} onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setShowFinancialForm(false);
+          setFinancialMessage('');
+        }
+      }}>
+        <div style={styles.modalContent}>
+          <div style={styles.modalHeader}>
+            <h2 style={styles.modalTitle}>Send to Financial Unit</h2>
+            <button 
+              style={styles.closeButton}
+              onClick={() => {
+                setShowFinancialForm(false);
+                setFinancialMessage('');
+              }}
+              onMouseEnter={(e) => e.target.style.background = '#f1f5f9'}
+              onMouseLeave={(e) => e.target.style.background = 'none'}
+            >
+              ×
+            </button>
+          </div>
+          
+          <div style={styles.modalBody}>
+            <label style={styles.modalLabel}>
+              Compose Message to Financial Unit:
+            </label>
+            <textarea
+              style={styles.modalTextarea}
+              value={financialMessage}
+              onChange={(e) => setFinancialMessage(e.target.value)}
+              placeholder="Enter your message to the financial unit..."
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+          
+          <div style={styles.modalFooter}>
+            <button 
+              style={styles.btnCancel}
+              onClick={() => {
+                setShowFinancialForm(false);
+                setFinancialMessage('');
+              }}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              Cancel
+            </button>
+            <button 
+              style={styles.btnSend}
+              onClick={handleFinancialSubmit}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              📧 Send Email
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

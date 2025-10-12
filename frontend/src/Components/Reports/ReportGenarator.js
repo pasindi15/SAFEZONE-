@@ -7,29 +7,70 @@ const districts = [
   "Matara","Hambantota","Jaffna","Kurunegala"
 ];
 
-const toISO = (d) => new Date(d).toISOString().slice(0,10);
+const isoLocal = (d = new Date()) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+const addDaysLocal = (d, days) => {
+  const x = new Date(d);
+  x.setDate(x.getDate() + days);
+  return x;
+};
+const TODAY = isoLocal(new Date());
 
-// ✅ use the same API base you use elsewhere
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-export default function AlertReport() {
-  const [from, setFrom] = useState(toISO(new Date(Date.now() - 7*864e5)));
-  const [to, setTo]   = useState(toISO(new Date()));
-  const [severity, setSeverity] = useState("all");   // all | green | red
-  const [district, setDistrict] = useState("all");   // all | <name>
+const normalizeSeverity = (item) => {
+  const candidates = [
+    item?.severity, item?.level, item?.status, item?.priority, item?.type,
+    item?.sev, item?.alertLevel, item?.alert_level, item?.risk, item?.danger
+  ].filter((v) => v !== undefined && v !== null);
+  if (!candidates.length) return { text: "—", cls: "sev-unknown" };
+  let raw = String(candidates[0]).trim();
+  if (/^(0|1)$/.test(raw)) raw = raw === "1" ? "red" : "green";
+  if (/^(true|false)$/i.test(raw)) raw = raw.toLowerCase() === "true" ? "red" : "green";
+  const s = raw.toLowerCase();
+  const greenSyn = ["green", "ok", "safe", "normal", "low", "minor"];
+  const redSyn   = ["red", "danger", "critical", "high", "major", "alert", "severe"];
+  if (greenSyn.includes(s)) return { text: "Green", cls: "sev-green" };
+  if (redSyn.includes(s))   return { text: "Red",   cls: "sev-red" };
+  return { text: raw, cls: `sev-${s.replace(/\s+/g, "-")}` };
+};
 
+const getDateTime = (item) =>
+  item?.createdAt || item?.created_at || item?.date || item?.timestamp || item?.time || item?.updatedAt || null;
+
+const getDistrict = (item) =>
+  item?.district || item?.area || item?.region || item?.location || "—";
+
+const getTitle = (item) => item?.title || item?.headline || item?.summary || item?.description || "—";
+
+export default function AlertReport() {
+  const [from, setFrom] = useState(isoLocal(addDaysLocal(new Date(), -7)));
+  const [to,   setTo]   = useState(TODAY);
+  const [severity, setSeverity] = useState("all");
+  const [district, setDistrict] = useState("all");
   const [loading, setLoading]   = useState(false);
   const [err, setErr]           = useState("");
   const [items, setItems]       = useState([]);
   const [totals, setTotals]     = useState({ total: 0, red: 0, green: 0 });
 
-  // ✅ Memoized to avoid identity changes; called only on Apply
   const load = useCallback(async () => {
+    let safeTo = to > TODAY ? TODAY : to;
+    let safeFrom = from > safeTo ? safeTo : from;
+    if (safeFrom > safeTo) {
+      setErr("'From' date cannot be after 'To' date.");
+      return;
+    }
+    setFrom(safeFrom);
+    setTo(safeTo);
     setLoading(true);
     setErr("");
     try {
       const res = await api.get("/alerts/report", {
-        params: { from, to, severity, district },
+        params: { from: safeFrom, to: safeTo, severity, district },
         validateStatus: () => true,
         withCredentials: true,
       });
@@ -50,12 +91,18 @@ export default function AlertReport() {
     }
   }, [from, to, severity, district]);
 
-  // ✅ Open the backend URL (not the frontend) and block form submit
   const downloadPdf = (e) => {
     e?.preventDefault();
     e?.stopPropagation();
-    const qs = new URLSearchParams({ from, to, severity, district }).toString();
-    window.open(`${API}/alerts/report/pdf?${qs}`, "_blank", "noopener"); // hits backend:5000
+    const safeTo = to > TODAY ? TODAY : to;
+    const safeFrom = from > safeTo ? safeTo : from;
+    const qs = new URLSearchParams({
+      from: safeFrom,
+      to: safeTo,
+      severity,
+      district
+    }).toString();
+    window.open(`${API}/alerts/report/pdf?${qs}`, "_blank", "noopener");
   };
 
   return (
@@ -75,10 +122,31 @@ export default function AlertReport() {
         >
           <div className="rg-row">
             <label>From
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+              <input
+                type="date"
+                value={from}
+                max={to}
+                onChange={(e) => {
+                  let f = e.target.value;
+                  if (f > to) f = to;
+                  if (f > TODAY) f = TODAY;
+                  setFrom(f);
+                }}
+              />
             </label>
             <label>To
-              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+              <input
+                type="date"
+                value={to}
+                min={from}
+                max={TODAY}
+                onChange={(e) => {
+                  let t = e.target.value;
+                  if (t > TODAY) t = TODAY;
+                  if (t < from)  t = from;
+                  setTo(t);
+                }}
+              />
             </label>
             <label>Severity
               <select value={severity} onChange={(e) => setSeverity(e.target.value)}>
@@ -92,13 +160,9 @@ export default function AlertReport() {
                 {districts.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </label>
-
-            {/* Submit triggers load (form prevents default) */}
             <button className="rg-btn" disabled={loading}>
               {loading ? "Loading…" : "Apply"}
             </button>
-
-            {/* ✅ Non-submit download button that opens backend URL */}
             <button
               type="button"
               className="rg-btn"
@@ -134,20 +198,22 @@ export default function AlertReport() {
                 </tr>
               </thead>
               <tbody>
-                {items.map((a) => (
-                  <tr key={a._id}>
-                    <td>{a.createdAt ? new Date(a.createdAt).toLocaleString() : "—"}</td>
-                    <td>
-                      <span className={`sev sev-${String(a.severity || a.level || "").toLowerCase()}`}>
-                        {a.severity || a.level || "—"}
-                      </span>
-                    </td>
-                    <td>{a.district || "—"}</td>
-                    <td className="cut" title={a.title || a.description}>
-                      {a.title || a.description || "—"}
-                    </td>
-                  </tr>
-                ))}
+                {items.map((a) => {
+                  const sev = normalizeSeverity(a);
+                  const dt = getDateTime(a);
+                  return (
+                    <tr key={a._id || a.id || `${getTitle(a)}-${dt || Math.random()}`}>
+                      <td>{dt ? new Date(dt).toLocaleString() : "—"}</td>
+                      <td>
+                        <span className={`sev ${sev.cls}`}>{sev.text}</span>
+                      </td>
+                      <td>{getDistrict(a)}</td>
+                      <td className="cut" title={getTitle(a)}>
+                        {getTitle(a)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (

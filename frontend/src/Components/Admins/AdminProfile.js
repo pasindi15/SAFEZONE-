@@ -1,3 +1,4 @@
+// src/pages/Admins/AdminProfile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
@@ -10,7 +11,6 @@ export default function AdminProfile() {
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
 
-  // admin profile
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -18,7 +18,6 @@ export default function AdminProfile() {
     adminName: "System Admin",
   });
 
-  // password form
   const [pw, setPw] = useState({
     currentPassword: "",
     newPassword: "",
@@ -28,13 +27,11 @@ export default function AdminProfile() {
   const [changingPw, setChangingPw] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // load admin profile
   useEffect(() => {
     let cancel = false;
     (async () => {
       setLoad(true);
-      setErr("");
-      setMsg("");
+      setErr(""); setMsg("");
       try {
         const { data } = await axios.get("/admin/me", { withCredentials: true });
         if (!cancel) {
@@ -46,11 +43,9 @@ export default function AdminProfile() {
               contactNumber: contactNumber || "",
               adminName: adminName || "System Admin",
             });
-          } else {
-            setErr(data?.message || "Failed to load admin profile");
-          }
+          } else setErr(data?.message || "Failed to load admin profile");
         }
-      } catch (e) {
+      } catch {
         if (!cancel) setErr("Network error");
       } finally {
         if (!cancel) setLoad(false);
@@ -68,7 +63,7 @@ export default function AdminProfile() {
     setErr(""); setMsg(""); setSaving(true);
     try {
       const { data } = await axios.put("/admin/me", form, { withCredentials: true });
-      if (data?.ok) setMsg("Saved");
+      if (data?.ok) setMsg("Profile updated");
       else setErr(data?.message || "Update failed");
     } catch (e) {
       setErr(e?.response?.data?.message || e.message || "Update failed");
@@ -90,9 +85,7 @@ export default function AdminProfile() {
       if (data?.ok) {
         setMsg("Password updated");
         setPw({ currentPassword: "", newPassword: "" });
-      } else {
-        setErr(data?.message || "Password update failed");
-      }
+      } else setErr(data?.message || "Password update failed");
     } catch (e) {
       setErr(e?.response?.data?.message || e.message || "Password update failed");
     } finally {
@@ -102,20 +95,15 @@ export default function AdminProfile() {
 
   const onDeleteAdmin = async () => {
     if (deleting) return;
-    const sure = window.confirm(
-      "This will permanently delete your ADMIN account and log you out. Continue?"
-    );
+    const sure = window.confirm("This will permanently delete your ADMIN account and log you out. Continue?");
     if (!sure) return;
-
     setErr(""); setMsg(""); setDeleting(true);
     try {
       const { data } = await axios.delete("/admin/me", { withCredentials: true });
       if (data?.ok) {
         alert("Admin account deleted.");
-        nav("/AdminLogin"); // adjust if your login route differs
-      } else {
-        setErr(data?.message || "Delete failed");
-      }
+        nav("/AdminLogin");
+      } else setErr(data?.message || "Delete failed");
     } catch (e) {
       setErr(e?.response?.data?.message || e.message || "Delete failed");
     } finally {
@@ -123,137 +111,91 @@ export default function AdminProfile() {
     }
   };
 
-  if (load) return <div style={{ padding: 16 }}>Loading…</div>;
+  if (load) return <div className="up-loading">Loading…</div>;
 
   return (
     <div className="up-wrap">
-      <h2>Admin Profile</h2>
+      <div className="up-header">
+        <div className="up-avatar">
+          {form.name?.charAt(0)?.toUpperCase() || "A"}
+        </div>
+        <div className="up-title">
+          <h2>Admin Profile</h2>
+          <p>{form.email || "—"}</p>
+        </div>
+      </div>
 
       {err && <p className="up-alert up-alert--error">{err}</p>}
       {msg && <p className="up-alert up-alert--ok">{msg}</p>}
 
-      {/* Header meta (avatar + name/email) */}
-      <div className="up-meta">
-        <div className="up-avatar">
-          {form.name?.charAt(0)?.toUpperCase() || "A"}
-        </div>
-        <div className="up-id">
-          <div className="name">{form.name || "Admin"}</div>
-          <div className="email">{form.email || "—"}</div>
-        </div>
+      <div className="up-grid">
+        <form onSubmit={onSave} className="up-card">
+          <div className="up-card-head"><h3>Profile</h3></div>
+
+          <div className="up-form-grid two">
+            <div className="up-field">
+              <label htmlFor="name">Name</label>
+              <input id="name" className="up-input" name="name" value={form.name} onChange={onChange} required />
+            </div>
+
+            <div className="up-field">
+              <label htmlFor="email">Email</label>
+              <input id="email" className="up-input" name="email" type="email" value={form.email} onChange={onChange} required />
+            </div>
+
+            <div className="up-field">
+              <label htmlFor="contactNumber">Contact</label>
+              <input id="contactNumber" className="up-input" name="contactNumber" value={form.contactNumber} onChange={onChange} placeholder="+94 7X XXX XXXX or 07XXXXXXXX" />
+            </div>
+
+            <div className="up-field">
+              <label htmlFor="adminName">Admin Type</label>
+              <select id="adminName" className="up-input" name="adminName" value={form.adminName} onChange={onChange}>
+                <option value="System Admin">System Admin</option>
+                <option value="Disaster Management Officer">Disaster Management Officer</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="up-actions end">
+            <button type="button" className="btn secondary" onClick={() => nav(-1)}>Back</button>
+            <button type="submit" className="btn" disabled={saving}>{saving ? "Updating..." : "Update"}</button>
+          </div>
+        </form>
+
+        <form onSubmit={onChangePassword} className="up-card">
+          <div className="up-card-head"><h3>Change Password</h3></div>
+
+          <div className="up-form-grid two">
+            <div className="up-field">
+              <label htmlFor="currentPassword">Current Password</label>
+              <input id="currentPassword" className="up-input" type="password" name="currentPassword" value={pw.currentPassword} onChange={onPwChange} required />
+            </div>
+
+            <div className="up-field">
+              <label htmlFor="newPassword">New Password</label>
+              <input id="newPassword" className="up-input" type="password" name="newPassword" value={pw.newPassword} onChange={onPwChange} required minLength={8} />
+            </div>
+          </div>
+
+          <div className="up-actions end">
+            <button type="submit" className="btn" disabled={changingPw}>{changingPw ? "Updating…" : "Update Password"}</button>
+          </div>
+        </form>
       </div>
 
-      {/* Edit profile */}
-      <form onSubmit={onSave} className="up-form">
-        <div className="up-form-grid">
-          <div className="up-field">
-            <label htmlFor="name">name</label>
-            <input
-              id="name"
-              className="up-input"
-              name="name"
-              value={form.name}
-              onChange={onChange}
-              required
-            />
+      <div className="up-danger">
+        <div className="up-card">
+          <div className="up-card-head">
+            <h3>Danger Zone</h3>
+            <p>Delete your admin account permanently.</p>
           </div>
-
-          <div className="up-field">
-            <label htmlFor="email">email</label>
-            <input
-              id="email"
-              className="up-input"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={onChange}
-              required
-            />
-          </div>
-
-          <div className="up-field">
-            <label htmlFor="contactNumber">contact</label>
-            <input
-              id="contactNumber"
-              className="up-input"
-              name="contactNumber"
-              value={form.contactNumber}
-              onChange={onChange}
-              placeholder="+94 7X XXX XXXX or 07XXXXXXXX"
-            />
-          </div>
-
-          <div className="up-field">
-            <label htmlFor="adminName">admin type</label>
-            <select
-              id="adminName"
-              className="up-input"
-              name="adminName"
-              value={form.adminName}
-              onChange={onChange}
-            >
-              <option value="System Admin">System Admin</option>
-              <option value="Disaster Management Officer">Disaster Management Officer</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="up-actions">
-          <button type="submit" className="btn" disabled={saving}>
-            {saving ? "Updating..." : "Update"}
-          </button>
-          <button type="button" className="btn secondary" onClick={() => nav(-1)}>
-            back
-          </button>
-          <button
-            type="button"
-            className="deleteButton"
-            onClick={onDeleteAdmin}
-            disabled={deleting}
-          >
-            {deleting ? "Deleting…" : "Delete"}
+          <button type="button" className="btn danger" onClick={onDeleteAdmin} disabled={deleting}>
+            {deleting ? "Deleting…" : "Delete Account"}
           </button>
         </div>
-      </form>
-
-      {/* Change password */}
-      <form onSubmit={onChangePassword} className="up-form" style={{ marginTop: 16 }}>
-        <div className="up-form-grid">
-          <div className="up-field">
-            <label htmlFor="currentPassword">current password</label>
-            <input
-              id="currentPassword"
-              className="up-input"
-              type="password"
-              name="currentPassword"
-              value={pw.currentPassword}
-              onChange={onPwChange}
-              required
-            />
-          </div>
-
-          <div className="up-field">
-            <label htmlFor="newPassword">new password</label>
-            <input
-              id="newPassword"
-              className="up-input"
-              type="password"
-              name="newPassword"
-              value={pw.newPassword}
-              onChange={onPwChange}
-              required
-              minLength={6}
-            />
-          </div>
-        </div>
-
-        <div className="up-actions">
-          <button type="submit" className="btn" disabled={changingPw}>
-            {changingPw ? "Updating…" : "Update Password"}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

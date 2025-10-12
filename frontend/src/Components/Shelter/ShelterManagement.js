@@ -759,9 +759,9 @@ const ShelterManagement = () => {
             <MapboxMap
               mapboxAccessToken="pk.eyJ1IjoibmF2b2RhMTIzIiwiYSI6ImNtZTdhMDdsaTAyY3QycXBtNWQwdHpxc2IifQ.jNfJr5DmTfwet02F2tQC1w"
               initialViewState={{
-                longitude: 79.8612,
-                latitude: 6.9271,
-                zoom: 6
+                longitude: 80.8156111,
+                latitude: 7.60552778,
+                zoom: 7,
               }}
               style={{ width: '100%', height: '800px' }}
               mapStyle="mapbox://styles/navoda123/cmf0ny1k100cd01sb5fu2g8zd"
