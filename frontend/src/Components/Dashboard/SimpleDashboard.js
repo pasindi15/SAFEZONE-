@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../NavBar/adminNav';
-import Footer from '../../HeaderFotter/Footer';
 import Map from '../map/map';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import ContactList from '../Conatct/ContactList';
@@ -500,8 +499,6 @@ const SimpleDashboard = () => {
           )}
         </div>
       </div>
-
-      <Footer />
 
       {/* Edit Disaster Modal */}
       {editingDisaster && (
