@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AdminNav from "../../../Components/NavBar/adminNav";
 import "./RA_Read.css";
 
 /* ---- API Endpoints Configuration ---- */
@@ -153,9 +152,6 @@ export default function ReadAid({ hideActions, hideReview, hideDelete, showFulfi
 
   return (
     <>
-      {/* Admin Header */}
-      <AdminNav />
-      
       <main className="ra-page">
         {/* Page Header with Title and Controls */}
         <header className="ra-header">
