@@ -1,0 +1,77 @@
+/* =========================================================
+   SafeZone Admin – Official Footer
+   ========================================================= */
+.admin-footer {
+  background: #0b1220;          /* Deep navy */
+  color: #e5e7eb;               /* Soft white text */
+  border-top: 1px solid #1f2937; /* Gentle border line */
+  padding: 10px 0;
+  width: 100%;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  position: relative;
+  bottom: 0;
+}
+
+.admin-footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  letter-spacing: 0.2px;
+}
+
+.admin-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-footer-left .brand {
+  font-weight: 600;
+  color: #16a34a; /* Emerald brand accent */
+}
+
+.admin-footer-left .version {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.admin-footer-left .copyright {
+  color: #9ca3af;
+}
+
+.admin-footer-left .divider {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.admin-footer-right {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-footer-right .link {
+  color: #e5e7eb;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: 0.2s ease;
+  font-weight: 500;
+}
+
+.admin-footer-right .link:hover {
+  color: #16a34a;
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .admin-footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

@@ -139,8 +139,6 @@ export default function UserLogin() {
           </form>
 
           <div className="sz-actions">
-            <Link to="/ForgotPassword">Forgot password?</Link>
-            <span>·</span>
             <Link to="/Registation">Create an account</Link>
           </div>
         </div>

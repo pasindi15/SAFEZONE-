@@ -6,7 +6,7 @@ import "./App.css";
 /* ----------- Shared layout ----------- */
 import Header from "./HeaderFotter/Header";
 import Footer from "./HeaderFotter/Footer";
-
+import AdminFooter from "./Components/NavBar/adminFooter";
 /* ----------- User-facing (root home) ----------- */
 import MainHome from "./Components/Home/home";
 
@@ -95,8 +95,11 @@ function PublicLayout() {
 }
 
 // Admin area without global Header/Footer (you can add a dedicated AdminHeader later)
-function AdminLayout() {
-  return <Outlet />;
+function AdminLayout() { 
+  return(<>
+      <Outlet />
+      <AdminFooter/>
+    </>);
 }
 
 export default function App() {

@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import Nav from "../NavBar/adminNav";
+import adminfooter from "../NavBar/adminFooter";
 import HeroSlider from "../Slider/Slider";
 import "./AdminHome.css";
 
@@ -110,8 +111,8 @@ export default function AdminHome() {
           <>
             <header className="ah-hero-head">
               <div className="ah-hero-left">
-                <h1>Admin Dashboard</h1>
-                <p>Monitor alerts, trends and actions in real time.</p>
+                <h1>Alerts & User Dashboard</h1>
+                <p>Monitor Alerts, Trends and Actions in Real-time.</p>
               </div>
               <div className="ah-hero-right">
                 <div className="ah-pill">{metrics.total} alerts</div>
@@ -215,6 +216,7 @@ export default function AdminHome() {
           <Outlet />
         )}
       </main>
+      
     </div>
   );
 }
