@@ -227,7 +227,7 @@ const ContactList = () => {
 
       y += 10;
       
-      // Separator line
+     
       if (index < contacts.length - 1) {
         pdf.line(margin, y, pageWidth - margin, y);
         y += 10;
@@ -279,7 +279,7 @@ SafeZone Support Team`;
   const handleGmail = (contact) => {
     setSelectedContact(contact);
     setMessageType('gmail');
-    // Pre-fill subject and message with their problem details
+    //subject and message with their problem details
     setSubject(`Response to your inquiry - ${contact.name}`);
     const template = `Dear ${contact.name},
 
@@ -317,7 +317,7 @@ Submission Date: ${new Date(contact.createdAt).toLocaleString()}`;
     if (selectedContact && message.trim()) {
       const encodedSubject = encodeURIComponent(subject);
       const encodedBody = encodeURIComponent(message);
-      // Open Gmail compose in browser instead of default email client
+      // Open Gmail 
       window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${selectedContact.email}&su=${encodedSubject}&body=${encodedBody}`, '_blank');
       setShowMessageForm(false);
       setMessage('');
