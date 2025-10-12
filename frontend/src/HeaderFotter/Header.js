@@ -98,7 +98,7 @@ export default function Nav() {
           {/* Links */}
           <nav className="sz-links">
             <NavLink to="/" className="sz-link" end>Home</NavLink>
-            <NavLink to="/dashboard" className="sz-link">Dashboard</NavLink>
+            <NavLink to="/victim/dashboard" className="sz-link">Victim Dashboard</NavLink>
             <NavLink to="/UserAlerts" className="sz-link">Alerts</NavLink>
             <NavLink to="/contact" className="sz-link">Contact Us</NavLink>
 

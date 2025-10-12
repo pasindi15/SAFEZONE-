@@ -189,7 +189,7 @@ const SafeZoneHomePage = () => {
             <AlertTriangle size={48} style={{ color: '#f39c12', marginBottom: '1rem' }} />
             <h3>Alerts & Warnings</h3>
             <p>View latest disaster alerts and warnings across all districts.</p>
-            <button onClick={() => navigate('/alerts')} style={{ backgroundColor: '#f39c12' }}>View Alerts</button>
+            <button onClick={() => navigate('/UserAlerts')} style={{ backgroundColor: '#f39c12' }}>View Alerts</button>
           </div>
 
           <div className="action-card">
