@@ -947,7 +947,7 @@ Submission Date: ${new Date(contact.createdAt).toLocaleString()}`;
 
   const textareaStyle = {
     ...inputStyle,
-    minHeight: '120px',
+    minHeight: '200px',
     resize: 'vertical',
     fontFamily: 'inherit'
   };
@@ -1140,7 +1140,7 @@ Submission Date: ${new Date(contact.createdAt).toLocaleString()}`;
               marginBottom: '20px'
             }}>
               <label style={{...labelStyle, color: '#856404', marginBottom: '8px'}}>
-                📝 Original Problem Submitted:
+                📝  Problem Submitted:
               </label>
               <div style={{
                 fontSize: '14px',

@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import "./ContactForm.css";   
-import Header from '../../HeaderFotter/Header';
-import Footer from '../../HeaderFotter/Footer';
+import "./ContactForm.css";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -129,8 +127,6 @@ const ContactForm = () => {
 
   return (
     <div>
-      <Header />
-      
       {/* Blue Header Section */}
       <div className="contact-header">
         <div className="header-bar"></div>
@@ -244,8 +240,6 @@ const ContactForm = () => {
           </div>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };

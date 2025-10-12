@@ -12,11 +12,13 @@ import Map from '../map/map';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
 const SafeZoneHomePage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [lastAlerts, setLastAlerts] = useState([]);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,6 +58,42 @@ const SafeZoneHomePage = () => {
       }
     };
     fetchLast3();
+  }, []);
+
+  // Check user authentication status
+  useEffect(() => {
+    let mounted = true;
+
+    const tryFetch = async (path) => {
+      try {
+        const r = await fetch(`${API_BASE}${path}`, { credentials: "include" });
+        if (!r.ok) return null;
+        return await r.json();
+      } catch {
+        return null;
+      }
+    };
+
+    const fetchMe = async () => {
+      // Prefer /users/me (user session), fall back to /auth/me (unified)
+      let data = await tryFetch("/users/me");
+      if (!data) data = await tryFetch("/auth/me");
+
+      const foundUser = data?.user || (data?.role === "user" ? data.user : null);
+      if (mounted) setUser(foundUser || null);
+    };
+
+    fetchMe();
+
+    const onAuthChange = () => fetchMe();
+    window.addEventListener("auth:login", onAuthChange);
+    window.addEventListener("auth:logout", onAuthChange);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("auth:login", onAuthChange);
+      window.removeEventListener("auth:logout", onAuthChange);
+    };
   }, []);
 
   const handleSearchResults = (results) => setSearchResults(results);
@@ -222,16 +260,19 @@ const SafeZoneHomePage = () => {
         </div>
       </section>
 
-      <section className="cta-section">
-        <div className="cta-container">
-          <h2>Stay Prepared, Stay Safe</h2>
-          <p>Join thousands of users who trust SafeZone for emergency preparedness and real-time disaster information.</p>
-          <div className="cta-buttons">
-            <button className="cta-btn primary">Create Account</button>
-            <button className="cta-btn secondary">Learn More</button>
+      {/* Call to Action Section - Only show when user is not logged in */}
+      {!user && (
+        <section className="cta-section">
+          <div className="cta-container">
+            <h2>Stay Prepared, Stay Safe</h2>
+            <p>Join thousands of users who trust SafeZone for emergency preparedness and real-time disaster information.</p>
+            <div className="cta-buttons">
+              <button className="cta-btn primary" onClick={() => navigate('/Registration')}>Create Account</button>
+              <button className="cta-btn secondary">Learn More</button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };
