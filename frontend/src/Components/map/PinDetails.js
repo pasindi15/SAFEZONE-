@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PinDetails.css";
 import Header from "../../HeaderFotter/Header";
-import Footer from "../../HeaderFotter/Footer";
 
 
 function PinDetails() {
@@ -173,7 +172,7 @@ function PinDetails() {
           </div>
         </div>
       </div>
-      <Footer />
+      
     </>
   );
 
