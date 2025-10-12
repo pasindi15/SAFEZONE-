@@ -1302,19 +1302,25 @@ function Map() {
                 onClose={() => setSelectedShelterId(null)}
               >
                 <div className="popup-card">
-                  <h2 style={{ color: "green" }}>{selectedShelter.name}</h2>
-                  <p><b>Description:</b> {selectedShelter.description}</p>
+                  <h2>{selectedShelter.name}</h2>
+                  <p>
+                    <b>Description:</b> {selectedShelter.description}
+                  </p>
                   {selectedShelter.capacity > 0 && (
-                    <p><b>Capacity:</b> {selectedShelter.capacity} people</p>
+                    <p>
+                      <b>Capacity:</b> {selectedShelter.capacity} people
+                    </p>
                   )}
                   {selectedShelter.facilities && selectedShelter.facilities.length > 0 && (
-                    <p><b>Facilities:</b> {selectedShelter.facilities.join(", ")}</p>
+                    <p>
+                      <b>Facilities:</b> {selectedShelter.facilities.join(", ")}
+                    </p>
                   )}
                   {selectedShelter.contact && (selectedShelter.contact.phone || selectedShelter.contact.email) && (
                     <div>
                       <p><b>Contact:</b></p>
-                      {selectedShelter.contact.phone && <p>Phone: {selectedShelter.contact.phone}</p>}
-                      {selectedShelter.contact.email && <p>Email: {selectedShelter.contact.email}</p>}
+                      {selectedShelter.contact.phone && <p>📞 {selectedShelter.contact.phone}</p>}
+                      {selectedShelter.contact.email && <p>📧 {selectedShelter.contact.email}</p>}
                     </div>
                   )}
                 </div>
