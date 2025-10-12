@@ -1,88 +1,134 @@
-/* ===== Page wrapper ===== */
-.alerts-wrap {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 16px 12px;
+/* src/pages/AlertFolder/Alert.css */
+
+/* shell */
+:root{
+  --bg:#f7f9ff;
+  --card:#ffffff;
+  --line:#e5e7eb;
+  --text:#0f172a;
+  --muted:#64748b;
+  --brand:#2563eb;
+  --brand-2:#1d4ed8;
+  --accent:#0f766e;
+  --shadow:0 14px 40px rgba(2,8,23,.06);
+  --radius:16px;
 }
 
-/* ===== Header row ===== */
-.alerts-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 8px 0 18px;
+.alerts-wrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:18px 14px 26px;
+  color:var(--text);
 }
 
-.alerts-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* header */
+.alerts-header{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg,#ffffffdd,#fffffffa);
+  backdrop-filter:saturate(1.2) blur(6px);
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+.alerts-header-left{display:flex; align-items:center; gap:12px}
+.alerts-title{
+  margin:0; font-size:1.35rem; font-weight:900; letter-spacing:-.2px;
+}
+.alerts-actions{display:flex; gap:10px}
+
+/* back */
+.back-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 12px; font-weight:700;
+  border-radius:10px; border:1px solid var(--line);
+  background:#f1f5f9; color:#1e293b; cursor:pointer;
+  transition:background .18s, transform .05s;
+}
+.back-btn:hover{ background:#e2e8f0; transform:translateY(-1px) }
+.back-arrow{ font-size:1rem }
+
+/* primary + ghost actions */
+.add-alert-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 14px; border-radius:10px; text-decoration:none;
+  font-weight:800; letter-spacing:.2px;
+  background:linear-gradient(180deg,var(--brand),var(--brand-2));
+  color:#fff; box-shadow:0 10px 24px rgba(37,99,235,.25);
+  transition:filter .18s, transform .05s;
+}
+.add-alert-btn:hover{ filter:brightness(1.05); transform:translateY(-1px) }
+
+.ghost-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer;
+  border:1px solid var(--line); background:#fff; color:var(--text);
+  transition:background .18s, transform .05s;
+}
+.ghost-btn:hover{ background:#f8fafc; transform:translateY(-1px) }
+
+/* empty */
+.alert-empty{
+  padding:18px; border:1px dashed #cbd5e1; border-radius:14px;
+  color:var(--muted); text-align:center; background:#ffffff;
 }
 
-.alerts-title {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #0f172a;
+/* list grid (your <Alert/> cards fill these slots) */
+.alerts-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+@media (min-width:700px){
+  .alerts-list{ grid-template-columns:1fr 1fr }
+}
+@media (min-width:1024px){
+  .alerts-list{ grid-template-columns:1fr 1fr 1fr }
 }
 
-/* ===== Back button (always visible) ===== */
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  font-weight: 700;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: #f1f5f9;
-  color: #1e293b;
-  cursor: pointer;
-  transition: background .2s, transform .05s;
+/* optional skeletons (while loading) */
+.alert-skel-wrap{
+  display:grid; gap:14px;
+  grid-template-columns:1fr; 
+}
+@media (min-width:700px){
+  .alert-skel-wrap{ grid-template-columns:1fr 1fr }
+}
+@media (min-width:1024px){
+  .alert-skel-wrap{ grid-template-columns:1fr 1fr 1fr }
+}
+.alert-skel{
+  height:120px; border-radius:14px; border:1px solid var(--line);
+  background:
+    linear-gradient(90deg, #f3f4f6 25%, #eef2f7 37%, #f3f4f6 63%);
+  background-size:400% 100%;
+  animation: sk 1.2s ease-in-out infinite;
+  box-shadow:var(--shadow);
+}
+@keyframes sk{ 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+
+/* if your <Alert/> component uses a root class, you can give it some default card feel */
+.alert-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  transition:transform .05s, box-shadow .2s, border-color .2s;
+}
+.alert-card:hover{
+  transform:translateY(-2px);
+  border-color:#d8dee9;
+  box-shadow:0 18px 44px rgba(2,8,23,.08);
 }
 
-.back-btn:hover {
-  background: #e2e8f0;
-  transform: translateY(-1px);
+/* small utilities if needed inside Alert card */
+.badge{
+  display:inline-block; padding:4px 8px; border-radius:999px;
+  font-size:.75rem; font-weight:800;
 }
-
-.back-arrow {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.back-text {
-  display: inline-block;
-}
-
-/* ===== Add Alert button (right) ===== */
-.add-alert-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  background: #0f766e;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: 700;
-  transition: filter .2s, transform .05s;
-}
-
-.add-alert-btn:hover {
-  filter: brightness(1.05);
-  transform: translateY(-1px);
-}
-
-/* ===== Empty state ===== */
-.alert-empty {
-  padding: 14px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  color: #64748b;
-  text-align: center;
-  background: #f8fafc;
-}
-
-/* ===== (Your existing card/button styles remain below) ===== */
+.badge.green{ background:#e9fbf2; color:#065f46 }
+.badge.red{ background:#fee2e2; color:#7f1d1d }
+.meta{ color:var(--muted); font-size:.85rem }

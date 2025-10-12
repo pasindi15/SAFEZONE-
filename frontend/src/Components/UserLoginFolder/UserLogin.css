@@ -1,14 +1,11 @@
 /* =========================================
    UserLogin.css (scoped)
-   - Variables are scoped to .sz-login (not :root)
-   - No bleed into Nav/other pages
    ========================================= */
 
-/* LOGIN SHELL — define variables here so they don't leak globally */
+/* LOGIN SHELL */
 .sz-login {
-  /* theme vars (scoped) */
-  --primary-color: #1e40af;      /* deep blue */
-  --success-color: #059669;      /* green button */
+  --primary-color: #1e40af;
+  --success-color: #059669;
   --success-color-hover: #047857;
   --danger-color: #dc2626;
 
@@ -30,17 +27,16 @@
 
   --transition: all .2s ease;
 
-  /* page bg/layout */
   min-height: 100vh;
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  padding: 24px 12px 40px; /* keep Nav outside this wrapper */
+  padding: 24px 12px 40px;
 }
 
-/* ----- Card (scoped under .sz-login) ----- */
+/* Card */
 .sz-login .sz-card {
   max-width: 500px;
   width: 90%;
@@ -55,7 +51,7 @@
   animation: fadeInUp .6s ease;
 }
 
-/* Centered title with icon */
+/* Title */
 .sz-login .sz-title {
   font-size: 2rem;
   font-weight: 800;
@@ -73,8 +69,18 @@
   opacity: .9;
 }
 
-/* Form layout */
-.sz-login .sz-form { display: grid; gap: 1rem; }
+/* Form layout — center the column */
+.sz-login .sz-form {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;      /* center children horizontally */
+}
+
+/* Constrain input row width so button can center to same width */
+.sz-login .sz-input-wrap,
+.sz-login .sz-input {
+  width: min(420px, 100%);
+}
 
 /* Labels */
 .sz-login .sz-label {
@@ -82,12 +88,12 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-top: .25rem;
+  width: min(420px, 100%);    /* match input width */
 }
 
 /* Inputs */
 .sz-login .sz-input-wrap { position: relative; }
 .sz-login .sz-input {
-  width: 100%;
   padding: .875rem 1rem;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -98,7 +104,6 @@
   box-shadow: var(--shadow-1);
 }
 .sz-login .sz-input::placeholder { color: var(--text-muted); }
-
 .sz-login .sz-input:hover {
   border-color: var(--primary-color);
   box-shadow: var(--shadow-2);
@@ -110,7 +115,7 @@
   transform: translateY(-1px);
 }
 
-/* Show/Hide password button */
+/* Show/Hide password */
 .sz-login .sz-show-btn {
   position: absolute;
   top: 50%;
@@ -128,7 +133,7 @@
 }
 .sz-login .sz-show-btn:hover { background: #eef2f7; }
 
-/* Error message */
+/* Error */
 .sz-login .sz-error {
   color: var(--danger-color);
   font-size: .95rem;
@@ -140,15 +145,12 @@
   border-radius: var(--radius-sm);
   text-align: center;
   animation: slideIn .3s ease;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  width: min(420px, 100%);     /* align with inputs */
 }
 
-/* Submit button */
+/* Submit button — centered and same width as inputs */
 .sz-login .sz-btn {
-  width: 100%;
+  width: min(420px, 100%);
   padding: .9rem 1.25rem;
   background: var(--success-color);
   color: #fff;
@@ -160,9 +162,10 @@
   transition: var(--transition);
   box-shadow: var(--shadow-2);
   letter-spacing: .01em;
-  position: relative;
-  overflow: hidden;
   margin-top: .25rem;
+  display: block;
+  margin-left: auto;           /* center */
+  margin-right: auto;          /* center */
 }
 .sz-login .sz-btn:hover:not(:disabled) {
   background: var(--success-color-hover);
@@ -188,9 +191,11 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Footer actions */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Footer */
 .sz-login .sz-actions {
   margin-top: 12px;
   text-align: center;
@@ -206,10 +211,7 @@
 .sz-login .sz-actions span{ margin: 0 .5rem; color: var(--text-muted); }
 
 /* Responsive */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 768px) {
   .sz-login .sz-card { margin: 16px auto; padding: 2rem; width: 95%; }
   .sz-login .sz-title { font-size: 1.75rem; }

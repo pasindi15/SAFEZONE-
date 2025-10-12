@@ -4,9 +4,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 import "./Registation.css";
 
-/* =========================
-   Module-scope constants
-   ========================= */
 const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const PHONE_HINT = "+94XXXXXXXXX or 0XXXXXXXXX";
 const phoneValid = (v) => /^\+94\d{9}$/.test(v) || /^0\d{9}$/.test(v);
@@ -17,7 +14,6 @@ const districts = [
   "Polonnaruwa","Puttalam","Ratnapura","Trincomalee","Vavuniya"
 ];
 
-/* Normalize to E.164 Sri Lanka: +94 + 9 digits */
 const toE164LK = (v) => {
   if (!v) return v;
   const digits = v.replace(/[^\d]/g, "");
@@ -33,7 +29,6 @@ const toE164LK = (v) => {
   return null;
 };
 
-/* Validators */
 const validateEmail = (v) =>
   EMAIL_RX.test(v) ? "" : "Enter a valid email (e.g., name@example.com).";
 
@@ -41,26 +36,23 @@ const validatePhoneLK = (v) => {
   if (!v) return "Contact number is required.";
   const normalized = toE164LK(v);
   if (normalized && /^\+94\d{9}$/.test(normalized)) return "";
-  if (v.trim().startsWith("+94"))
-    return "Use +94 followed by 9 digits (e.g., +94712345678).";
-  if (v.trim().startsWith("0"))
-    return "Use a 10-digit number starting with 0 (e.g., 0712345678).";
+  if (v.trim().startsWith("+94")) return "Use +94 followed by 9 digits (e.g., +94712345678).";
+  if (v.trim().startsWith("0")) return "Use a 10-digit number starting with 0 (e.g., 0712345678).";
   return "Start with +94… or 0… (e.g., +9471… or 071…).";
 };
 
 const validatePassword = (v) => {
-  const len = v.length >= 7;
+  const len = v.length >= 8;
   const letter = /[A-Za-z]/.test(v);
   const number = /\d/.test(v);
   const special = /[^A-Za-z0-9]/.test(v);
   if (len && letter && number && special) return "";
-  return "Password must be: ✅ 7+ chars 🔠 letter 🔢 number 🔣 special";
+  return "Password must be: ✅ 8+ chars 🔠 letter 🔢 number 🔣 special";
 };
 
 const validateConfirm = (pwd, cpwd) =>
   pwd === cpwd ? "" : "Passwords do not match.";
 
-/* Tiny password strength 0..4 */
 const scorePassword = (pw = "") => {
   let s = 0;
   if (pw.length >= 8) s++;
@@ -90,7 +82,6 @@ function Registation() {
   const [showPw, setShowPw] = useState(false);
   const [showCpw, setShowCpw] = useState(false);
 
-  // live inline errors (deps only on user — constants are hoisted)
   const errors = useMemo(() => {
     const e = {};
     if (!user.firstName.trim()) e.firstName = "Required";
@@ -114,7 +105,6 @@ function Registation() {
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  // +94XXXXXXXXX if valid on blur
   const handlePhoneBlur = () => {
     const normalized = toE164LK(user.contactNumber);
     if (normalized) setUser((s) => ({ ...s, contactNumber: normalized }));
@@ -135,7 +125,6 @@ function Registation() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // final validation before submit (server-bound)
     const finalErrors = {
       email: validateEmail(user.email),
       contactNumber: validatePhoneLK(user.contactNumber),
@@ -144,7 +133,6 @@ function Registation() {
     };
     const anyError = Object.values(finalErrors).some(Boolean);
 
-    // show all fields as touched to reveal any errors
     setTouched({
       firstName: true,
       lastName: true,
@@ -177,7 +165,6 @@ function Registation() {
         postalCode: user.postalCode,
         password: user.password,
       });
-      // ✅ No email verification. Plain success and redirect to Login.
       alert("Registration successful. You can log in now.");
       navigate("/UserLogin");
     } catch (err) {
@@ -188,15 +175,12 @@ function Registation() {
   return (
     <div className="reg-page">
       <div className="reg-card">
-        {/* ===== centered header with icon ===== */}
         <div className="reg-header">
           <div className="reg-hero" aria-hidden>
-            {/* user-plus + shield icon */}
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
               <circle cx="24" cy="22" r="10" stroke="#1E3A8A" strokeWidth="3" fill="#E0EAFF"/>
               <path d="M6 48c2-8 10-13 18-13s16 5 18 13" stroke="#1E3A8A" strokeWidth="3" fill="#DBEAFE"/>
-              <path d="M46 10l12 4v10c0 11-12 16-12 16s-12-5-12-16V14l12-4Z"
-                    fill="#DCFCE7" stroke="#065F46" strokeWidth="3"/>
+              <path d="M46 10l12 4v10c0 11-12 16-12 16s-12-5-12-16V14l12-4Z" fill="#DCFCE7" stroke="#065F46" strokeWidth="3"/>
               <path d="M46 20v8" stroke="#065F46" strokeWidth="3" strokeLinecap="round"/>
               <path d="M42 24h8" stroke="#065F46" strokeWidth="3" strokeLinecap="round"/>
             </svg>
@@ -205,13 +189,8 @@ function Registation() {
           <p className="subtitle">Create your account to stay safe & connected</p>
         </div>
 
-        {/* ===== Floating-label form ===== */}
         <form className="ar-form" onSubmit={handleSubmit} noValidate>
-          {/* First Name */}
-          <div
-            className={`ar-field ${touched.firstName && errors.firstName ? "error" : ""} ${touched.firstName && !errors.firstName ? "success" : ""}`}
-            data-key="firstName"
-          >
+          <div className={`ar-field ${touched.firstName && errors.firstName ? "error" : ""} ${touched.firstName && !errors.firstName ? "success" : ""}`} data-key="firstName">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -233,11 +212,7 @@ function Registation() {
             {touched.firstName && errors.firstName && <div className="ar-error-text">{errors.firstName}</div>}
           </div>
 
-          {/* Last Name */}
-          <div
-            className={`ar-field ${touched.lastName && errors.lastName ? "error" : ""} ${touched.lastName && !errors.lastName ? "success" : ""}`}
-            data-key="lastName"
-          >
+          <div className={`ar-field ${touched.lastName && errors.lastName ? "error" : ""} ${touched.lastName && !errors.lastName ? "success" : ""}`} data-key="lastName">
             <div className="ar-input-wrap">
               <input
                 className="ar-input"
@@ -254,11 +229,7 @@ function Registation() {
             {touched.lastName && errors.lastName && <div className="ar-error-text">{errors.lastName}</div>}
           </div>
 
-          {/* NIC */}
-          <div
-            className={`ar-field ${touched.nic && errors.nic ? "error" : ""} ${touched.nic && !errors.nic ? "success" : ""}`}
-            data-key="nic"
-          >
+          <div className={`ar-field ${touched.nic && errors.nic ? "error" : ""} ${touched.nic && !errors.nic ? "success" : ""}`} data-key="nic">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -282,11 +253,7 @@ function Registation() {
             {touched.nic && errors.nic && <div className="ar-error-text">{errors.nic}</div>}
           </div>
 
-          {/* Email */}
-          <div
-            className={`ar-field ${touched.email && errors.email ? "error" : ""} ${touched.email && !errors.email ? "success" : ""}`}
-            data-key="email"
-          >
+          <div className={`ar-field ${touched.email && errors.email ? "error" : ""} ${touched.email && !errors.email ? "success" : ""}`} data-key="email">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -310,11 +277,7 @@ function Registation() {
             {touched.email && errors.email && <div className="ar-error-text">{errors.email}</div>}
           </div>
 
-          {/* Contact Number */}
-          <div
-            className={`ar-field ${touched.contactNumber && errors.contactNumber ? "error" : ""} ${touched.contactNumber && !errors.contactNumber ? "success" : ""}`}
-            data-key="contactNumber"
-          >
+          <div className={`ar-field ${touched.contactNumber && errors.contactNumber ? "error" : ""} ${touched.contactNumber && !errors.contactNumber ? "success" : ""}`} data-key="contactNumber">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -338,11 +301,7 @@ function Registation() {
             {touched.contactNumber && errors.contactNumber && <div className="ar-error-text">{errors.contactNumber}</div>}
           </div>
 
-          {/* District */}
-          <div
-            className={`ar-field ${touched.district && errors.district ? "error" : ""} ${touched.district && !errors.district ? "success" : ""}`}
-            data-key="district"
-          >
+          <div className={`ar-field ${touched.district && errors.district ? "error" : ""} ${touched.district && !errors.district ? "success" : ""}`} data-key="district">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -366,11 +325,7 @@ function Registation() {
             {touched.district && errors.district && <div className="ar-error-text">{errors.district}</div>}
           </div>
 
-          {/* City */}
-          <div
-            className={`ar-field ${touched.city && errors.city ? "error" : ""} ${touched.city && !errors.city ? "success" : ""}`}
-            data-key="city"
-          >
+          <div className={`ar-field ${touched.city && errors.city ? "error" : ""} ${touched.city && !errors.city ? "success" : ""}`} data-key="city">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -393,11 +348,7 @@ function Registation() {
             {touched.city && errors.city && <div className="ar-error-text">{errors.city}</div>}
           </div>
 
-          {/* Postal Code */}
-          <div
-            className={`ar-field ${touched.postalCode && errors.postalCode ? "error" : ""} ${touched.postalCode && !errors.postalCode ? "success" : ""}`}
-            data-key="postalCode"
-          >
+          <div className={`ar-field ${touched.postalCode && errors.postalCode ? "error" : ""} ${touched.postalCode && !errors.postalCode ? "success" : ""}`} data-key="postalCode">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -420,11 +371,7 @@ function Registation() {
             {touched.postalCode && errors.postalCode && <div className="ar-error-text">{errors.postalCode}</div>}
           </div>
 
-          {/* Password */}
-          <div
-            className={`ar-field ${touched.password && errors.password ? "error" : ""} ${touched.password && !errors.password ? "success" : ""}`}
-            data-key="password"
-          >
+          <div className={`ar-field ${touched.password && errors.password ? "error" : ""} ${touched.password && !errors.password ? "success" : ""}`} data-key="password">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -456,11 +403,7 @@ function Registation() {
             {touched.password && errors.password && <div className="ar-error-text">{errors.password}</div>}
           </div>
 
-          {/* Confirm Password */}
-          <div
-            className={`ar-field ${touched.confirmPassword && errors.confirmPassword ? "error" : ""} ${touched.confirmPassword && !errors.confirmPassword ? "success" : ""}`}
-            data-key="confirmPassword"
-          >
+          <div className={`ar-field ${touched.confirmPassword && errors.confirmPassword ? "error" : ""} ${touched.confirmPassword && !errors.confirmPassword ? "success" : ""}`} data-key="confirmPassword">
             <div className="ar-input-wrap">
               <span className="ar-left" aria-hidden>
                 <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -469,7 +412,7 @@ function Registation() {
                 </svg>
               </span>
               <input
-                className="ar-input has-right"
+                className="ar-input has-left has-right"
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showCpw ? "text" : "password"}
