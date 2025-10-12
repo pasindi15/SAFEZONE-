@@ -26,7 +26,7 @@ const damageCtrl = require("./Controllers/DamageController");
 /* Legacy/external groups */
 const adminAuthRoutes = require("./Router/AdminRoute");
 const alertRoutes     = require("./Router/AlertRoute");
-const userRoutes      = require("./Router/RegRoute"); // may contain verify/resend routes
+const userRoutes      = require("./Router/RegRoute");
 const testRoutes      = require("./Router/testRoute");
 
 /* Reports API */
@@ -39,7 +39,6 @@ const { startSriLankaBroadcastCron } = require("./Jobs/weatherSriLankaBroadcastC
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-// If you ever run behind a proxy/HTTPS (nginx, vercel), keep cookies working.
 app.set("trust proxy", 1);
 
 // Accept both 3000 (CRA) and 5173 (Vite) in dev
@@ -58,15 +57,13 @@ const MONGO_URL =
   (process.env.MONGO_URI && process.env.MONGO_URI.trim()) ||
   "mongodb://127.0.0.1:27017/itpDB";
 
-// redact password in logs
 const redactCreds = (s = "") => s.replace(/\/\/.*?:.*?@/, "//***:***@");
 console.log("[BOOT] Using Mongo URL:", redactCreds(MONGO_URL));
 
 /* ---------------- Core middleware ----------------------- */
-// CORS
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // curl / Postman
+    if (!origin) return cb(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     return cb(new Error(`CORS blocked for origin: ${origin}`));
   },
@@ -89,13 +86,13 @@ app.use(session({
   store: MongoStore.create({
     mongoUrl: MONGO_URL,
     collectionName: "sessions",
-    ttl: 60 * 60 * 24 * 7, // 7 days
+    ttl: 60 * 60 * 24 * 7,
   }),
   cookie: {
     httpOnly: true,
     sameSite: "lax",
-    secure: false, // set true behind HTTPS/proxy with app.set('trust proxy', 1)
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 }));
 
@@ -103,7 +100,6 @@ app.use(session({
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 const DAMAGE_UPLOAD_DIR = path.join(UPLOAD_DIR, "damage");
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-// compat helper for older snippets
 if (!fs.existsSync(DAMAGE_UPLOAD_DIR)) {
   try { fs.mkdirSync(DAMAGE_UPLOAD_DIR, { recursive: true }); } catch {}
 }
@@ -128,7 +124,6 @@ app.get("/health", (_req, res) => {
 });
 
 /* ---------------- Gate requests if DB is down ----------- */
-/* Allow health, static uploads, and test/tool routes to bypass gate */
 const BYPASS_DB_GATE = [/^\/health$/, /^\/uploads\//, /^\/tools(\/|$)/, /^\/test(\/|$)/];
 app.use((req, res, next) => {
   if (BYPASS_DB_GATE.some(rx => rx.test(req.path))) return next();
@@ -143,7 +138,6 @@ app.use((req, res, next) => {
 });
 
 /* ------------- HARD KILL-SWITCH: email verification ------ */
-/* This blocks ALL verify/resend endpoints before any router. */
 app.use((req, res, next) => {
   const p = req.path.toLowerCase();
   if (
@@ -184,7 +178,6 @@ app.get("/damages", damageCtrl.listDamages);
 app.use("/reports", reportsRoutes);
 
 // ---------------- Legacy / tools ------------------------
-// Mount at BOTH /tools and /test so either base path works
 app.use("/tools", testRoutes);
 app.use("/test",  testRoutes);
 
@@ -202,9 +195,8 @@ app.get("/auth/me", (req, res) => {
 // API groups
 app.use("/admin",  adminAuthRoutes);
 app.use("/alerts", alertRoutes);
-app.use("/users",  userRoutes); // verification endpoints under /users/* will be blocked by kill-switch above
+app.use("/users",  userRoutes);
 
-// Root
 app.get("/", (_req, res) => res.json({ ok: true, msg: "API up" }));
 
 // 404s for known api groups
@@ -215,19 +207,7 @@ app.use(["/admin", "/alerts", "/users"], (req, res) => {
   });
 });
 
-// ---------------- Error handler ---------------------------
-app.use((err, _req, res, _next) => {
-  console.error("Unhandled error:", err);
-  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-    return res.status(400).json({ ok: false, message: "File too large", error: "FILE_TOO_LARGE" });
-  }
-  if (err?.message?.startsWith("CORS blocked")) {
-    return res.status(403).json({ ok: false, message: err.message });
-  }
-  res.status(err.status || 500).json({ ok: false, message: err.message || "Server error" });
-});
-
-/* ---------------- Mongo connection & server ------------- */
+// ---------------- Mongo connection & server ------------- */
 const mongooseOptions = {
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
@@ -344,16 +324,16 @@ try {
   const activeDisasterRoutes     = require("./Router/ActiveDisasterRoutes");
   const ngopastRoutes            = require("./Router/NgopastRoutes");
 
-  app.use("/api/volunteer",       volunteerRoutes);
-  app.use("/api/volunteers",      volunteerRoutes);
-  app.use("/api/operations",      operationRoutes);
-  app.use("/api",                 distributionRecordRoutes);
+  app.use("/api/volunteer",         volunteerRoutes);
+  app.use("/api/volunteers",        volunteerRoutes);
+  app.use("/api/operations",        operationRoutes);
+  app.use("/api",                   distributionRecordRoutes);
   app.use("/api/targetinventories", targetInventoryRoutes);
-  app.use("/api",                 centersRoutes);
-  app.use("/api/inventory",       inventoryRoutes);
-  app.use("/api/donations",       donationRoutes);
-  app.use("/api/activedisasters", activeDisasterRoutes);
-  app.use("/api/ngopast",         ngopastRoutes);
+  app.use("/api",                   centersRoutes);
+  app.use("/api/inventory",         inventoryRoutes);
+  app.use("/api/donations",         donationRoutes);
+  app.use("/api/activedisasters",   activeDisasterRoutes);
+  app.use("/api/ngopast",           ngopastRoutes);
 
   console.log("✅ Personal routes loaded successfully");
 } catch (error) {
@@ -383,9 +363,22 @@ app.post("/api/uploads/deposit-proof", (req, res) => {
   });
 });
 
-// Catch-all 404 (must be last)
+// Catch-all 404 (must be before error handler)
 app.use((req, res) => {
   res.status(404).json({ ok: false, message: "Route not found" });
+});
+
+// ---------------- Error handler (LAST) --------------------
+app.use((err, _req, res, _next) => {
+  if (res.headersSent) return; // avoid "headers already sent"
+  console.error("Unhandled error:", err);
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ ok: false, message: "File too large", error: "FILE_TOO_LARGE" });
+  }
+  if (err?.message?.startsWith("CORS blocked")) {
+    return res.status(403).json({ ok: false, message: err.message });
+  }
+  res.status(err?.status || err?.statusCode || 500).json({ ok: false, message: err?.message || "Server error" });
 });
 
 module.exports = app;

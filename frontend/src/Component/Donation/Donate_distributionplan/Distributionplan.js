@@ -269,6 +269,7 @@ export default function Distributionplan({ onClose }) {
     return Math.round(vals.reduce((a, n) => a + (n > 0 ? 1 : 0), 0) / vals.length * 100);
   })();
 
+    // eslint-disable-next-line no-undef
   if (selfClosed) return null; // fallback path when no onClose provided
 
   const content = (

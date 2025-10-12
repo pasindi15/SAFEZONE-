@@ -1,3 +1,4 @@
+// src/pages/AlertFolder/AlertsPage.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
@@ -6,16 +7,18 @@ import "./Alert.css";
 
 export default function AlertsPage() {
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const load = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get("/alerts?limit=100");
-      // supports either { ok, items } or array
       setItems(data?.items || data || []);
-    } catch (e) {
-      console.error("alerts load failed", e);
+    } catch {
       setItems([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,35 +32,45 @@ export default function AlertsPage() {
 
   return (
     <div className="alerts-wrap">
-      {/* ===== Page header with back button & add button ===== */}
       <div className="alerts-header">
         <div className="alerts-header-left">
-          {/* Visible back button (works even if route changes) */}
           <button
             className="back-btn"
             onClick={() => navigate("/AdminHome")}
             aria-label="Back to Admin Home"
             type="button"
           >
-            <span className="back-arrow" aria-hidden>←</span>
+            <span className="back-arrow">←</span>
             <span className="back-text">Back</span>
           </button>
 
-          <h1 className="alerts-title">Admin — Alerts</h1>
+          <h1 className="alerts-title">Alerts</h1>
         </div>
 
-        <Link to="/AdminHome/AlertAdd" className="add-alert-btn">
-          + Add Alert
-        </Link>
+        <div className="alerts-actions">
+          <button className="ghost-btn" onClick={load} type="button">
+            ⟳ Refresh
+          </button>
+          <Link to="/AdminHome/AlertAdd" className="add-alert-btn">
+            + Add Alert
+          </Link>
+        </div>
       </div>
 
-      {/* ===== List ===== */}
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="alert-skel-wrap">
+          <div className="alert-skel" />
+          <div className="alert-skel" />
+          <div className="alert-skel" />
+        </div>
+      ) : items.length === 0 ? (
         <div className="alert-empty">No alerts yet.</div>
       ) : (
-        items.map((a) => (
-          <Alert key={a._id || a.id} alert={a} onDelete={onDelete} />
-        ))
+        <div className="alerts-list">
+          {items.map((a) => (
+            <Alert key={a._id || a.id} alert={a} onDelete={onDelete} />
+          ))}
+        </div>
       )}
     </div>
   );
