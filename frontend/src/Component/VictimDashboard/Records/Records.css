@@ -48,6 +48,10 @@
   /* Text Colors */
   --text-primary: #111827;
   --text-secondary: #4b5563;
+  
+  /* Live Indicator */
+  --live-color: #ef4444;
+  --live-bg: #fef2f2;
   --text-tertiary: #6b7280;
   --text-muted: #9ca3af;
   --text-white: #ffffff;
@@ -1003,6 +1007,30 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--primary-200), transparent);
   opacity: 0.5;
+}
+
+/* Live Indicator */
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--live-bg);
+  color: var(--live-color);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Professional shadow depth */

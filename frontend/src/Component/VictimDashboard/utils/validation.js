@@ -1,16 +1,10 @@
 // Validation utilities for VictimDashboard forms
-// Enhanced validation for NIC and phone numbers with zero restrictions
-
-/* ---- Enhanced Validation Patterns ---- */
-// Name validation: letters only (including spaces and hyphens for compound names)
 export const NAME_REGEX = /^[a-zA-Z\s\-']+$/;
 
-// Enhanced NIC validation: supports both old format (9 digits + V/X) and new format (12 digits)
-// Prevents all zeros and first 4 digits cannot be zeros
+// Enhanced NIC validation:
 export const NIC_REGEX = /^(\d{9}[VvXx]|\d{12})$/;
 
-// Enhanced Phone validation: Sri Lankan mobile numbers starting with 7
-// Prevents all zeros and first 4 digits cannot be zeros
+// Enhanced Phone validation: 
 export const PHONE_REGEX = /^7\d{8}$/;
 
 // Basic email validation pattern
