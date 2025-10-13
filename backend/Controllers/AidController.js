@@ -26,7 +26,6 @@ exports.createAid = async (req, res) => {
       urgency = "Normal",
       description = "",
       requestedAt,
-      // eslint-disable-next-line no-unused-vars
       _id, id, createdAt, updatedAt, ...rest
     } = req.body || {};
 

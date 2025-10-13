@@ -9,7 +9,7 @@ const { sendEmail } = require("../utils/mailer");
 const { getAlertsForLatLon } = require("../Services/openweather");
 const { countryDigestHTML } = require("../Services/templates");
 
-// ---- Configs / Flags --------------------------------------------------------
+//flags
 const KEY = "LKA_COUNTRY_ALERT_HASH";
 const TZ = process.env.LKA_TZ || "Asia/Colombo"; // schedule in Sri Lanka time
 const ALWAYS_EMAIL_NO_ALERTS = process.env.LKA_ALWAYS_EMAIL_NO_ALERTS === "true";
