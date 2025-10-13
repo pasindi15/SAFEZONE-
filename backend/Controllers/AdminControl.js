@@ -1,24 +1,22 @@
-// Controllers/AdminController.js
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/AdminModel");
 
 const VALID = ["System Admin", "Disaster Management Officer", "Other"];
 const isEmail = (s = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s));
 
+
 class AdminControl {
-  /* ---------- REGISTER ---------- */
+  // validate admin credentials
   async register(req, res) {
     try {
       let { name, email, contactNumber, adminName, password } = req.body || {};
 
-      // normalize
       name          = String(name || "").trim();
       email         = String(email || "").toLowerCase().trim();
       contactNumber = String(contactNumber || "").trim();
       adminName     = String(adminName || "").trim();
       password      = String(password || "");
 
-      // validate
       if (!name || !email || !contactNumber || !adminName || !password) {
         return res.status(400).json({ ok:false, message:"All fields are required" });
       }
@@ -28,14 +26,9 @@ class AdminControl {
       if (!VALID.includes(adminName)) {
         return res.status(400).json({ ok:false, message:"Invalid admin type" });
       }
-
-      // unique email
       const exists = await Admin.findOne({ email });
       if (exists) return res.status(409).json({ ok:false, message:"Admin already exists" });
-
-      // IMPORTANT: pass plain password; model pre('save') will hash
       const admin = await Admin.create({ name, email, contactNumber, adminName, password });
-
       return res.status(201).json({
         ok: true,
         admin: {
@@ -50,12 +43,11 @@ class AdminControl {
       if (e?.code === 11000 && e?.keyPattern?.email) {
         return res.status(409).json({ ok:false, message:"Admin already exists" });
       }
-      console.error("[admin/register]", e);
       return res.status(500).json({ ok:false, message:"Server error during register" });
     }
   }
 
-  /* ---------- LOGIN ---------- */
+  // validate admin credentials
   async login(req, res) {
     try {
       const email = String(req.body.email || "").toLowerCase().trim();
@@ -63,17 +55,12 @@ class AdminControl {
 
       if (!email || !plain) return res.status(400).json({ ok:false, message:"Email and password are required" });
       if (!isEmail(email)) return res.status(400).json({ ok:false, message:"Invalid email" });
-
-      // select password explicitly (select:false in schema)
       const admin = await Admin.findOne({ email }).select("+password");
       if (!admin || !admin.password) {
         return res.status(401).json({ ok:false, message:"Invalid email or password" });
       }
-
       const ok = await bcrypt.compare(plain, admin.password);
       if (!ok) return res.status(401).json({ ok:false, message:"Invalid email or password" });
-
-      // prevent session fixation
       req.session.regenerate(() => {
         req.session.admin = {
           id: admin._id,
@@ -90,12 +77,13 @@ class AdminControl {
     }
   }
 
-  /* ---------- AUTH / LOGOUT ---------- */
+  // admin auth: session required
   authMe(req, res) {
     if (req.session?.admin) return res.json({ ok:true, admin: req.session.admin });
     return res.status(401).json({ ok:false, admin: null });
   }
 
+  // logout
   logout(req, res) {
     req.session?.destroy(() => {
       res.clearCookie("sid");
@@ -103,12 +91,11 @@ class AdminControl {
     });
   }
 
-  /* ---------- PROFILE ---------- */
   async me(req, res) {
     try {
       const admin = await Admin.findById(req.session.admin.id).lean();
-      if (!admin) return res.status(404).json({ ok:false, message:"Admin not found" });
-      return res.json({ ok:true, admin });
+  if (!admin) return res.status(404).json({ ok:false, message:"Admin not found" });
+  return res.json({ ok:true, admin });
     } catch (e) {
       console.error("[admin GET /me]", e);
       return res.status(500).json({ ok:false, message:"Server error" });
@@ -131,8 +118,7 @@ class AdminControl {
         return res.status(400).json({ ok:false, message:"Invalid admin type" });
       }
 
-      // remove empty strings so we don't overwrite with ""
-      Object.keys(patch).forEach(k => { if (!patch[k]) delete patch[k]; });
+  Object.keys(patch).forEach(k => { if (!patch[k]) delete patch[k]; });
 
       const updated = await Admin.findByIdAndUpdate(
         req.session.admin.id, patch, { new: true, runValidators: true }
@@ -140,7 +126,6 @@ class AdminControl {
 
       if (!updated) return res.status(404).json({ ok:false, message:"Admin not found" });
 
-      // keep session in sync
       req.session.admin = {
         ...req.session.admin,
         name: updated.name,
@@ -148,12 +133,11 @@ class AdminControl {
         adminName: updated.adminName,
       };
 
-      return res.json({ ok:true, admin: updated });
+  return res.json({ ok:true, admin: updated });
     } catch (e) {
       if (e?.code === 11000 && e?.keyPattern?.email) {
         return res.status(409).json({ ok:false, message:"Email already in use" });
       }
-      console.error("[admin PUT /me]", e);
       return res.status(500).json({ ok:false, message:"Failed to update profile" });
     }
   }
@@ -174,13 +158,12 @@ class AdminControl {
       const ok = await bcrypt.compare(String(currentPassword), admin.password);
       if (!ok) return res.status(400).json({ ok:false, message:"Current password is incorrect" });
 
-      admin.password = String(newPassword); // pre('save') will hash
-      await admin.save();
+  admin.password = String(newPassword); // pre('save') will hash
+  await admin.save();
 
-      return res.json({ ok:true, message:"Password updated" });
+  return res.json({ ok:true, message:"Password updated" });
     } catch (e) {
-      console.error("[admin PUT /me/password]", e);
-      return res.status(500).json({ ok:false, message:"Failed to update password" });
+  return res.status(500).json({ ok:false, message:"Failed to update password" });
     }
   }
 
@@ -192,8 +175,7 @@ class AdminControl {
         return res.json({ ok:true, message:"Admin account deleted" });
       });
     } catch (e) {
-      console.error("[DELETE /admin/me]", e);
-      return res.status(500).json({ ok:false, message:"Failed to delete admin" });
+  return res.status(500).json({ ok:false, message:"Failed to delete admin" });
     }
   }
 }

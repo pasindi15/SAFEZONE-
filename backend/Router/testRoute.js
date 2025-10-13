@@ -1,4 +1,3 @@
-// Router/testRoute.js
 const express = require("express");
 const router = express.Router();
 console.log("[TestRoute] loaded");
@@ -58,13 +57,22 @@ router.post("/reset-lka-state", async (_req, res) => {
 // send a manual test alert to ONE address (pipeline check)
 router.post("/send-test-alert", async (req, res) => {
   try {
-    const {
-      to = process.env.EMAIL_USER,
-      place = "Colombo",
-      event = "Manual Test Alert",
-      message = "This is a manual test alert."
-    } = req.body || {};
+    console.log("[/send-test-alert] body=", req.body);
 
+    const to =
+      req.body?.to ||
+      req.body?.email ||
+      process.env.TEST_EMAIL_TO ||
+      process.env.SMTP_USER ||
+      process.env.EMAIL_USER;
+
+    const place   = req.body?.place   ?? "Colombo";
+    const event   = req.body?.event   ?? "Manual Test Alert";
+    const message = req.body?.message ?? "This is a manual test alert.";
+
+    if (!to) {
+      return res.status(400).json({ ok: false, error: "No recipients defined" });
+    }
     if (!isValidEmail(to)) {
       return res.status(400).json({ ok: false, error: "Invalid 'to' email address." });
     }
@@ -84,7 +92,7 @@ router.post("/send-test-alert", async (req, res) => {
     );
 
     const subject = `⚠️ Weather Alert (TEST) — ${place}`;
-    const r = await sendEmail(to, subject, html);
+    const r = await sendEmail({ to, subject, html }); // use object form
     console.log("[TestRoute] test email sent ->", to);
 
     res.json({ ok: true, msg: "Test email sent", messageId: r?.messageId || null, to });
@@ -139,7 +147,7 @@ router.post("/send-test-alert-all", async (req, res) => {
           },
           { reason: "manual test broadcast" }
         );
-        const r = await sendEmail(u.email, subject, html);
+        const r = await sendEmail({ to: u.email, subject, html }); // object form
         sent.push({ email: u.email, id: r?.messageId || null });
       } catch (err) {
         fails.push({ email: u.email, error: err.message });

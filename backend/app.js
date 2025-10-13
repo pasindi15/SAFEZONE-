@@ -207,7 +207,7 @@ app.use(["/admin", "/alerts", "/users"], (req, res) => {
   });
 });
 
-// ---------------- Mongo connection & server ------------- */
+/* ---------------- Mongo connection & server ------------- */
 const mongooseOptions = {
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
@@ -368,9 +368,9 @@ app.use((req, res) => {
   res.status(404).json({ ok: false, message: "Route not found" });
 });
 
-// ---------------- Error handler (LAST) --------------------
+// Error handler 
 app.use((err, _req, res, _next) => {
-  if (res.headersSent) return; // avoid "headers already sent"
+  if (res.headersSent) return;
   console.error("Unhandled error:", err);
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     return res.status(400).json({ ok: false, message: "File too large", error: "FILE_TOO_LARGE" });

@@ -1,10 +1,4 @@
 const axios = require('axios');
-
-/**
- * Resolves Google Maps short links to get the full URL with coordinates
- * @param {string} shortUrl - The short URL to resolve
- * @returns {Promise<Object>} - Object containing resolved URL and coordinates
- */
 async function resolveGoogleMapsShortLink(shortUrl) {
   try {
     // Validate URL format first
@@ -68,23 +62,16 @@ async function resolveGoogleMapsShortLink(shortUrl) {
   }
 }
 
-/**
- * Extracts coordinates from various Google Maps URL formats
- * @param {string} url - The Google Maps URL
- * @returns {Object|null} - Object with latitude and longitude, or null if not found
- */
 function extractCoordinatesFromUrl(url) {
   try {
     let lat, lng;
     
-    // Format 1: https://www.google.com/maps/@lat,lng,zoom
     const coordMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
     if (coordMatch) {
       lat = parseFloat(coordMatch[1]);
       lng = parseFloat(coordMatch[2]);
     }
     
-    // Format 2: https://www.google.com/maps/place/name/@lat,lng,zoom
     if (!lat || !lng) {
       const placeMatch = url.match(/place\/[^/]*\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
       if (placeMatch) {

@@ -1,10 +1,7 @@
-// Router/AlertRoute.js
 const express = require("express");
 const EventEmitter = require("events");
 const PDFDocument = require("pdfkit");
-
 const router = express.Router();
-
 const Alert = require("../models/AlertModels");
 const User  = require("../models/RegModel");
 const { sendAlertEmail } = require("../Services/notifyEmail");
@@ -16,6 +13,7 @@ function requireAnyAuth(req, res, next) {
   if (req.session?.user || req.session?.admin) return next();
   return res.status(401).json({ ok: false, message: "Not authenticated" });
 }
+// role guard: user only
 function requireUser(req, res, next) {
   if (req.session?.user) return next();
   return res.status(401).json({ ok: false, message: "Not authenticated (user)" });
@@ -26,19 +24,17 @@ function asInt(v, d) { const n = Number(v); return Number.isFinite(n) && n > 0 ?
 function escReg(s = "") { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 function endOfDay(s) { const d = new Date(s); d.setHours(23,59,59,999); return d; }
 const safe = (v) => (v === null || v === undefined ? "" : String(v));
-const dt   = (v) => (v ? new Date(v).toLocaleString() : "—");
+const dt   = (v) => (v ? new Date(v).toLocaleString() : "");
 
-/* Build query for reports */
+// build report query
 function buildReportQuery({ from, to, severity = "all", district = "all" }) {
   const q = {};
-  const sev = String(severity).toLowerCase(); // alertType: "green" | "red"
+  const sev = String(severity).toLowerCase();
   if (sev === "green") q.alertType = /green/i;
   if (sev === "red")   q.alertType = /red/i;
-
   if (district && String(district).toLowerCase() !== "all") {
     q.district = new RegExp(`^${escReg(String(district))}$`, "i");
   }
-
   if (from || to) {
     q.createdAt = {};
     if (from) q.createdAt.$gte = new Date(from);
@@ -47,10 +43,9 @@ function buildReportQuery({ from, to, severity = "all", district = "all" }) {
   return q;
 }
 
-/* ---------------- Small event bus for SSE ---------------- */
 const bus = new EventEmitter();
 
-/* ---------------- Dashboard snapshot ---------------- */
+// dashboard snapshot
 async function buildSnapshot(limit = 20) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const [agg] = await Alert.aggregate([
@@ -75,7 +70,6 @@ async function buildSnapshot(limit = 20) {
       },
     },
   ]);
-
   const total   = agg?.total?.[0]?.n ?? 0;
   const last24h = agg?.last24h?.[0]?.n ?? 0;
   const typeMap = Object.fromEntries((agg?.byType || []).map(x => [x._id, x.n]));
@@ -228,7 +222,7 @@ router.get("/report", async (req, res) => {
   }
 });
 
-/* ---------------- Report (PDF) — Formal monochrome cards ---------------- */
+// Report 
 router.get("/report/pdf", async (req, res) => {
   try {
     const { from, to, severity = "all", district = "all" } = req.query;
@@ -243,10 +237,9 @@ router.get("/report/pdf", async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
-    const doc = new PDFDocument({ size: "A4", margin: 50 }); // generous margins
+    const doc = new PDFDocument({ size: "A4", margin: 50 }); 
     doc.pipe(res);
 
-    /* palette (grayscale, understated) */
     const C = {
       ink: "#111111",
       sub: "#555555",
@@ -292,7 +285,7 @@ router.get("/report/pdf", async (req, res) => {
       return y + lineH;
     };
 
-    /* Card for each alert (no message, no ID) */
+    /* Card for alerts */
     const card = (a) => {
       const boxH = 84;
       const y0 = doc.y;

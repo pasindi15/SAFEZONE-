@@ -1,10 +1,6 @@
 // Contact validation utilities
 
-/**
- * Validates required contact fields
- * @param {Object} body - Request body containing contact data
- * @returns {Array} Array of validation errors (empty if valid)
- */
+// Validates required contact fields
 const validateContactData = (body) => {
   const errors = [];
   const { name, email, phone, problem } = body;
@@ -16,11 +12,7 @@ const validateContactData = (body) => {
   return errors;
 };
 
-/**
- * Validates email format
- * @param {string} email - Email address to validate
- * @returns {Array} Array of validation errors (empty if valid)
- */
+// Validates email format
 const validateEmail = (email) => {
   const errors = [];
   
@@ -37,11 +29,7 @@ const validateEmail = (email) => {
   return errors;
 };
 
-/**
- * Validates phone number format (Sri Lankan 10-digit format)
- * @param {string} phone - Phone number to validate
- * @returns {Array} Array of validation errors (empty if valid)
- */
+// Validates phone number format
 const validatePhone = (phone) => {
   const errors = [];
   
@@ -50,7 +38,7 @@ const validatePhone = (phone) => {
     return errors;
   }
 
-  // Clean phone number (remove non-digits)
+  // Clean phone number 
   const cleanPhone = phone.replace(/\D/g, '');
   
   if (!cleanPhone.startsWith('0')) {
