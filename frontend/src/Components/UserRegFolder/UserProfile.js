@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 import "./UserProfile.css";
 
 export default function UserProfile() {
   const nav = useNavigate();
 
-  const [me, setMe] = useState(null);      
+  const [me, setMe] = useState(null); // user only
   const [load, setLoad] = useState(true);
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
@@ -22,63 +23,51 @@ export default function UserProfile() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // 1) Require a USER session (no admins)
   useEffect(() => {
     let cancel = false;
-
     (async () => {
       setLoad(true);
       setErr("");
       try {
-        const r = await fetch("http://localhost:5000/auth/me", { credentials: "include" });
-        if (r.ok) {
-          const data = await r.json();
-          if (!cancel) setMe(data.user || null);
-        } else {
-          if (!cancel) setMe(null);
-        }
+        // This endpoint returns { ok:true, user:{...} } ONLY for users.
+        const r = await api.get("/users/me");
+        if (!cancel) setMe(r.data.user || null);
       } catch {
         if (!cancel) setMe(null);
       } finally {
         if (!cancel) setLoad(false);
       }
     })();
-
     return () => { cancel = true; };
   }, []);
 
+  // 2) Load editable profile details (only for users)
   useEffect(() => {
-    if (!me) return; 
+    if (!me?.id) return; // if not a user session, do nothing
     let cancel = false;
-
     (async () => {
       setLoad(true);
       setErr("");
       try {
-        const r = await fetch(`http://localhost:5000/users/${me.id}`, { credentials: "include" });
-        const data = await r.json().catch(() => ({}));
+        const r = await api.get(`/users/${me.id}`);
+        const data = r.data || {};
         if (!cancel) {
-          if (!r.ok) {
-            setErr(data.message || "Failed to load profile");
-          } else {
-            setForm({
-              firstName: data.user?.firstName || "",
-              lastName: data.user?.lastName || "",
-              contactNumber: data.user?.contactNumber || "",
-              district: data.user?.district || "",
-              city: data.user?.city || "",
-              postalCode: data.user?.postalCode || "",
-            });
-          }
+          setForm({
+            firstName: data.user?.firstName || "",
+            lastName: data.user?.lastName || "",
+            contactNumber: data.user?.contactNumber || "",
+            district: data.user?.district || "",
+            city: data.user?.city || "",
+            postalCode: data.user?.postalCode || "",
+          });
         }
       } catch {
-        if (!cancel) {
-          setErr("Network error");
-        }
+        if (!cancel) setErr("Failed to load profile");
       } finally {
         if (!cancel) setLoad(false);
       }
     })();
-
     return () => { cancel = true; };
   }, [me]);
 
@@ -89,48 +78,32 @@ export default function UserProfile() {
 
   const onSave = async (e) => {
     e.preventDefault();
-    if (!me || saving) return;
+    if (!me?.id || saving) return;
     setErr(""); setMsg(""); setSaving(true);
     try {
-      const r = await fetch(`http://localhost:5000/users/${me.id}`, {
-        method: "PUT",
+      await api.put(`/users/${me.id}`, form, {
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(form),
       });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        setErr(data.message || "Update failed");
-      } else {
-        setMsg("Saved");
-      }
+      setMsg("Saved");
     } catch {
-      setErr("Network error");
+      setErr("Update failed");
     } finally {
       setSaving(false);
     }
   };
 
   const onDelete = async () => {
-    if (!me || deleting) return;
+    if (!me?.id || deleting) return;
     const sure = window.confirm("This will permanently delete your account. Continue?");
     if (!sure) return;
 
     setErr(""); setMsg(""); setDeleting(true);
     try {
-      const r = await fetch("http://localhost:5000/users/me", {
-        method: "DELETE",
-        credentials: "include",
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        setErr(data.message || "Delete failed");
-      } else {
-        alert("Account deleted.");
-        nav("/Home");
-      }
+      await api.delete("/users/me");
+      alert("Account deleted.");
+      nav("/Home");
     } catch {
-      setErr("Network error");
+      setErr("Delete failed");
     } finally {
       setDeleting(false);
     }
@@ -212,11 +185,9 @@ export default function UserProfile() {
 
         <div className="up-actions">
           <button type="submit" className="btn" disabled={saving}>{saving ? "Saving…" : "Save"}</button>
-          
           <button type="button" className="deleteButton" onClick={onDelete} disabled={deleting}>
             {deleting ? "Deleting…" : "Delete"}
           </button>
-            
           <button type="button" className="btn secondary" onClick={() => nav(-1)}>back</button>
         </div>
       </form>

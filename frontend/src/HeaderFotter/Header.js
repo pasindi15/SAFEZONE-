@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
-import logo from "../Images/logo.jpg"; // your logo
+import logo from "../Images/logo.jpg"; 
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
@@ -25,7 +25,6 @@ export default function Nav() {
     };
 
     const fetchMe = async () => {
-      // Prefer /users/me (user session), fall back to /auth/me (unified)
       let data = await tryFetch("/users/me");
       if (!data) data = await tryFetch("/auth/me");
 
@@ -101,7 +100,7 @@ export default function Nav() {
             <NavLink to="/victim/dashboard" className="sz-link">Victim Dashboard</NavLink>
             <NavLink to="/UserAlerts" className="sz-link">Alerts</NavLink>
             <NavLink to="/contact" className="sz-link">Contact Us</NavLink>
-
+            <NavLink to="/UserProfile" className="sz-link">User Profile</NavLink>
             {!user ? (
               <>
                 <Link to="/Registration" className="sz-btn sz-btn-primary">Register</Link>
@@ -140,9 +139,8 @@ export default function Nav() {
                       </div>
                     </div>
 
-                    <Link to="/dashboard" className="sz-menu-item" role="menuitem" onClick={() => setMenuOpen(false)}>
-                      Dashboard
-                    </Link>
+                    
+                    
                     <Link to="/map" className="sz-menu-item" role="menuitem" onClick={() => setMenuOpen(false)}>
                       Map
                     </Link>

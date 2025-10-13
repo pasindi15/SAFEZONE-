@@ -1,6 +1,4 @@
-// =========================
-// File: src/Components/AlertFolder/AlertAdd.jsx
-// =========================
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
@@ -60,7 +58,6 @@ function useOpenMeteo({ query }) {
         const loc = gJ?.results?.[0];
         if (!loc) throw new Error("place not found");
 
-        // 2) Weather now
         const { latitude, longitude } = loc;
         const wR = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=precipitation_probability`
@@ -87,7 +84,7 @@ function useOpenMeteo({ query }) {
 
 function WeatherCard({ district, disLocation }) {
   const query = useMemo(() => {
-    // Prefer more specific location if provided
+    
     const base = disLocation?.trim() ? `${disLocation}, ${district}` : district;
     return base ? `${base}, Sri Lanka` : "Sri Lanka";
   }, [district, disLocation]);
@@ -139,7 +136,7 @@ function WeatherCard({ district, disLocation }) {
 }
 
 function EmergencyContactsCard() {
-  // ⚠️ Verify numbers locally before production.
+  
   const CONTACTS = [
     { label: "Disaster Management Centre (Hotline)", tel: "117" },
     { label: "Police Emergency", tel: "119" },
@@ -216,8 +213,7 @@ export default function AlertAdd() {
 
   return (
     <div className="aa-page">
-      <div className="aa-grid">
-        {/* ===== Left: Form ===== */}
+      <div className="aa-grid">2
         <div className="aa-main">
           <div className="aa-card">
             <h1 className="aa-title">Add Alert</h1>

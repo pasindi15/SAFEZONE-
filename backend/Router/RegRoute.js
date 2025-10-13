@@ -54,6 +54,7 @@ router.post("/login", async (req, res) => {
       email: user.email,
       district: user.district,
     };
+    await req.session.save?.(); // <-- ensure cookie is persisted before response
 
     return res.json({ ok: true, user: req.session.user });
   } catch (e) {
@@ -112,8 +113,7 @@ router.post("/", async (req, res) => {
       password: hashPassword,
     });
 
-    // ✅ No email verification: either return success
-    // OR auto-login by creating a session (uncomment if desired)
+    // Auto-login (session)
     req.session.user = {
       id: user._id,
       firstName: user.firstName,
@@ -121,10 +121,10 @@ router.post("/", async (req, res) => {
       email: user.email,
       district: user.district,
     };
+    await req.session.save?.(); 
 
     return res.status(201).json({ ok: true, user: req.session.user });
   } catch (error) {
-    // Handle duplicate key errors cleanly
     if (error?.code === 11000 && error?.keyPattern?.email) {
       return res.status(409).json({ ok: false, message: "User with given email already exists!" });
     }

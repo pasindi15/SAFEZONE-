@@ -61,6 +61,7 @@ const redactCreds = (s = "") => s.replace(/\/\/.*?:.*?@/, "//***:***@");
 console.log("[BOOT] Using Mongo URL:", redactCreds(MONGO_URL));
 
 /* ---------------- Core middleware ----------------------- */
+// CORS before routes; allow credentials
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
@@ -77,7 +78,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Sessions
+// Sessions (cookie "sid")
 app.use(session({
   name: "sid",
   secret: process.env.SESSION_SECRET || "change-this-secret",
@@ -90,8 +91,8 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "lax",  // for localhost:3000 <-> 5000 it’s OK
+    secure: false,    // set true if HTTPS + SameSite:"none"
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 }));
