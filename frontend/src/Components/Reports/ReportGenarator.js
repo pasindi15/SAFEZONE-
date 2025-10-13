@@ -19,34 +19,126 @@ const addDaysLocal = (d, days) => {
   return x;
 };
 const TODAY = isoLocal(new Date());
-
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
+/* ---------- deep scan helpers ---------- */
+const keyLooksSeverity = (k) =>
+  /(^|[_\-\s]|)(sev|servaty|serverty|severity|risk[_\-\s]*level|alert[_\-\s]*level|level|danger|priority|status|type)(\b|$)/i.test(
+    k
+  );
+
+const findByKeyDeep = (root, maxDepth = 6) => {
+  if (!root || typeof root !== "object") return undefined;
+  const q = [root];
+  const seen = new Set([root]);
+  let depth = 0;
+  while (q.length && depth <= maxDepth) {
+    const next = [];
+    for (const node of q) {
+      if (Array.isArray(node)) {
+        for (const v of node) if (v && typeof v === "object" && !seen.has(v)) { seen.add(v); next.push(v); }
+      } else {
+        for (const [k, v] of Object.entries(node)) {
+          if (keyLooksSeverity(k) && v !== undefined && v !== null && String(v).trim() !== "") return v;
+          if (v && typeof v === "object" && !seen.has(v)) { seen.add(v); next.push(v); }
+        }
+      }
+    }
+    depth += 1;
+    q.splice(0, q.length, ...next);
+  }
+  return undefined;
+};
+
+const findByValueDeep = (root, maxDepth = 6) => {
+  if (!root || typeof root !== "object") return undefined;
+  const q = [root];
+  const seen = new Set([root]);
+  let depth = 0;
+  while (q.length && depth <= maxDepth) {
+    const next = [];
+    for (const node of q) {
+      if (Array.isArray(node)) {
+        for (const v of node) {
+          if (v !== null && v !== undefined) {
+            if (typeof v !== "object") {
+              const s = String(v).trim().toLowerCase();
+              if (/^(red|green|critical|severe|danger|ok|safe|high|low|true|false|0|1)$/.test(s)) return v;
+            } else if (!seen.has(v)) { seen.add(v); next.push(v); }
+          }
+        }
+      } else {
+        for (const [, v] of Object.entries(node)) {
+          if (v !== null && v !== undefined) {
+            if (typeof v !== "object") {
+              const s = String(v).trim().toLowerCase();
+              if (/^(red|green|critical|severe|danger|ok|safe|high|low|true|false|0|1)$/.test(s)) return v;
+            } else if (!seen.has(v)) { seen.add(v); next.push(v); }
+          }
+        }
+      }
+    }
+    depth += 1;
+    q.splice(0, q.length, ...next);
+  }
+  return undefined;
+};
+
+/* ---------- field readers ---------- */
 const normalizeSeverity = (item) => {
-  const candidates = [
-    item?.severity, item?.level, item?.status, item?.priority, item?.type,
-    item?.sev, item?.alertLevel, item?.alert_level, item?.risk, item?.danger
-  ].filter((v) => v !== undefined && v !== null);
-  if (!candidates.length) return { text: "—", cls: "sev-unknown" };
-  let raw = String(candidates[0]).trim();
-  if (/^(0|1)$/.test(raw)) raw = raw === "1" ? "red" : "green";
-  if (/^(true|false)$/i.test(raw)) raw = raw.toLowerCase() === "true" ? "red" : "green";
+  let v = findByKeyDeep(item);
+  if (v === undefined) v = findByValueDeep(item);
+
+  if (v && typeof v === "object") {
+    const pick = (o, ks) => { for (const k of ks) if (o?.[k] !== undefined && o[k] !== null) return o[k]; };
+    v = pick(v, ["value","level","name","label","text","color","code","status","state"]) ?? JSON.stringify(v);
+  }
+  if (v === undefined) return { text: "—", cls: "sev-unknown" };
+
+  let raw = String(v).trim();
+  if (/^\d+$/.test(raw)) raw = Number(raw) >= 1 ? "red" : "green";
+  else if (/^(true|false)$/i.test(raw)) raw = raw.toLowerCase() === "true" ? "red" : "green";
+
   const s = raw.toLowerCase();
-  const greenSyn = ["green", "ok", "safe", "normal", "low", "minor"];
-  const redSyn   = ["red", "danger", "critical", "high", "major", "alert", "severe"];
+  const greenSyn = ["green","ok","safe","normal","low","minor","good","ready"];
+  const redSyn   = ["red","danger","critical","high","major","alert","severe","bad","warning"];
+
   if (greenSyn.includes(s)) return { text: "Green", cls: "sev-green" };
   if (redSyn.includes(s))   return { text: "Red",   cls: "sev-red" };
-  return { text: raw, cls: `sev-${s.replace(/\s+/g, "-")}` };
+  return { text: raw, cls: `sev-${s.replace(/\s+/g,"-")}` };
+};
+
+const getFirstValue = (obj, keys) => {
+  if (!obj || typeof obj !== "object") return undefined;
+  const map = new Map(Object.keys(obj).map(k => [k.toLowerCase(), k]));
+  for (const want of keys) {
+    const k = map.get(want.toLowerCase());
+    if (k !== undefined) {
+      const v = obj[k];
+      if (v !== undefined && v !== null && String(v).trim() !== "") return v;
+    }
+  }
+  for (const v of Object.values(obj)) {
+    if (v && typeof v === "object") {
+      const r = getFirstValue(v, keys);
+      if (r !== undefined) return r;
+    }
+  }
+  return undefined;
 };
 
 const getDateTime = (item) =>
-  item?.createdAt || item?.created_at || item?.date || item?.timestamp || item?.time || item?.updatedAt || null;
+  getFirstValue(item, [
+    "createdAt","created_at","date","timestamp","time","updatedAt","updated_at","dateTime","datetime","alert_time"
+  ]) || null;
 
 const getDistrict = (item) =>
-  item?.district || item?.area || item?.region || item?.location || "—";
+  getFirstValue(item, ["district","districtName","district_name","area","region","location","city"]) || "—";
 
-const getTitle = (item) => item?.title || item?.headline || item?.summary || item?.description || "—";
+const getTitle = (item) =>
+  getFirstValue(item, ["title","headline","summary","description","topic","name","subject","message","text"]) || "—";
 
+/* ---------- component ---------- */
 export default function AlertReport() {
   const [from, setFrom] = useState(isoLocal(addDaysLocal(new Date(), -7)));
   const [to,   setTo]   = useState(TODAY);
@@ -60,10 +152,7 @@ export default function AlertReport() {
   const load = useCallback(async () => {
     let safeTo = to > TODAY ? TODAY : to;
     let safeFrom = from > safeTo ? safeTo : from;
-    if (safeFrom > safeTo) {
-      setErr("'From' date cannot be after 'To' date.");
-      return;
-    }
+    if (safeFrom > safeTo) { setErr("'From' date cannot be after 'To' date."); return; }
     setFrom(safeFrom);
     setTo(safeTo);
     setLoading(true);
@@ -96,12 +185,7 @@ export default function AlertReport() {
     e?.stopPropagation();
     const safeTo = to > TODAY ? TODAY : to;
     const safeFrom = from > safeTo ? safeTo : from;
-    const qs = new URLSearchParams({
-      from: safeFrom,
-      to: safeTo,
-      severity,
-      district
-    }).toString();
+    const qs = new URLSearchParams({ from: safeFrom, to: safeTo, severity, district }).toString();
     window.open(`${API}/alerts/report/pdf?${qs}`, "_blank", "noopener");
   };
 
@@ -113,13 +197,7 @@ export default function AlertReport() {
           <div className="rg-sub">Range: {from} – {to}</div>
         </div>
 
-        <form
-          className="rg-filters"
-          onSubmit={(e) => {
-            e.preventDefault();
-            load();
-          }}
-        >
+        <form className="rg-filters" onSubmit={(e) => { e.preventDefault(); load(); }}>
           <div className="rg-row">
             <label>From
               <input
@@ -160,15 +238,8 @@ export default function AlertReport() {
                 {districts.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </label>
-            <button className="rg-btn" disabled={loading}>
-              {loading ? "Loading…" : "Apply"}
-            </button>
-            <button
-              type="button"
-              className="rg-btn"
-              onClick={downloadPdf}
-              disabled={loading || items.length === 0}
-            >
+            <button className="rg-btn" disabled={loading}>{loading ? "Loading…" : "Apply"}</button>
+            <button type="button" className="rg-btn" onClick={downloadPdf} disabled={loading || items.length === 0}>
               Download PDF
             </button>
           </div>
@@ -184,9 +255,7 @@ export default function AlertReport() {
 
         <div className="rg-table" aria-busy={loading}>
           {loading ? (
-            <div className="rg-skel">
-              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rg-skel-row" />)}
-            </div>
+            <div className="rg-skel">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="rg-skel-row" />)}</div>
           ) : items.length ? (
             <table>
               <thead>
@@ -204,13 +273,9 @@ export default function AlertReport() {
                   return (
                     <tr key={a._id || a.id || `${getTitle(a)}-${dt || Math.random()}`}>
                       <td>{dt ? new Date(dt).toLocaleString() : "—"}</td>
-                      <td>
-                        <span className={`sev ${sev.cls}`}>{sev.text}</span>
-                      </td>
+                      <td><span className={`sev ${sev.cls}`}>{sev.text}</span></td>
                       <td>{getDistrict(a)}</td>
-                      <td className="cut" title={getTitle(a)}>
-                        {getTitle(a)}
-                      </td>
+                      <td className="cut" title={getTitle(a)}>{getTitle(a)}</td>
                     </tr>
                   );
                 })}

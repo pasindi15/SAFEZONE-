@@ -1,9 +1,8 @@
-// Router/AdminRoute.js
 const express = require("express");
 const AdminCtrl = require("../Controllers/AdminControl");
-
 const router = express.Router();
 
+// role guard: admin only
 const requireAdmin = (req, res, next) =>
   req.session?.admin?.id ? next() : res.status(401).json({ ok:false, message:"Not authenticated (admin)" });
 

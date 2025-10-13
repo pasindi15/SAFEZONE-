@@ -1,4 +1,3 @@
-// Jobs/weatherSriLankaBroadcastCron.js
 console.log("[weatherLKA] module loaded");
 
 const cron = require("node-cron");
@@ -32,7 +31,7 @@ const DISTRICT_LL = {
   Vavuniya:{lat:8.7542,lon:80.4989}
 };
 
-// ---- Helpers ----------------------------------------------------------------
+// Helpers
 const hash = (obj) =>
   crypto.createHash("sha1").update(JSON.stringify(obj)).digest("hex").slice(0, 16);
 
@@ -66,7 +65,7 @@ async function scanSriLanka() {
   return { digest, countryHash: hash(digest) };
 }
 
-// Ensure we only email on RED (unless forced / explicit)
+// Ensure we only email on RED 
 function hasRedAlerts(digest) {
   return digest.some(d =>
     Array.isArray(d.alerts) &&
@@ -74,7 +73,7 @@ function hasRedAlerts(digest) {
   );
 }
 
-// ⬇️ Accepts { force } to send even if no state change
+//  Accepts { force } to send even if no state change
 async function runBroadcastCycle({ force = false } = {}) {
   console.log("[weatherLKA] broadcast cycle start");
 
@@ -90,14 +89,14 @@ async function runBroadcastCycle({ force = false } = {}) {
     return;
   }
 
-  // Update stored state (even if empty)
+  // Update stored state
   await SystemState.findOneAndUpdate(
     { key: KEY },
     { $set: { value: { hash: countryHash, at: new Date().toISOString(), digest } } },
     { upsert: true }
   );
 
-  // Only email if there's a RED alert, unless forced, or always-email flag is set
+  // Only email if there's a RED alert
   const redNow = hasRedAlerts(digest);
   if (!redNow && !force && !ALWAYS_EMAIL_NO_ALERTS) {
     console.log("[weatherLKA] no RED alerts; email suppressed (by design).");
@@ -121,7 +120,7 @@ async function runBroadcastCycle({ force = false } = {}) {
       ? htmlFromTpl
       : `<h2>${subject}</h2><pre>${JSON.stringify(digest, null, 2)}</pre>`;
 
-  // 🔔 SEND TO OPTED-IN USERS (emailAlerts !== false)
+  //  SEND TO OPTED-IN USERS 
   const usersRaw = await User.find(
     { $or: [{ emailAlerts: { $exists: false } }, { emailAlerts: { $ne: false } }] },
     { email: 1 }
@@ -154,7 +153,7 @@ async function runBroadcastCycle({ force = false } = {}) {
     const bcc = emails.slice(i, i + chunkSize);
     try {
       await sendEmail({
-        to: "alerts@safezone.local", // some SMTP providers require a non-empty "to"
+        to: "alerts@safezone.local", 
         bcc,
         subject,
         html
@@ -178,7 +177,7 @@ function startSriLankaBroadcastCron() {
       console.log("[weatherLKA] cron tick");
       runBroadcastCycle().catch(err => console.error("[weatherLKA] run error:", err));
     },
-    { timezone: TZ } // ✅ run on Sri Lanka time
+    { timezone: TZ } 
   );
 
   // also run once on boot
