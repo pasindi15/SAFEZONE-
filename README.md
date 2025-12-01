@@ -78,8 +78,8 @@ SafeZone_DMS/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Deeghau0816/SafeZone_DMS.git
-cd SafeZone_DMS
+git clone https://github.com/pasindi15/SAFEZONE-
+cd SAFEZONE
 ```
 
 ### 2. Backend Setup
