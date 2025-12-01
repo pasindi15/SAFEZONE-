@@ -11,9 +11,6 @@ import axios from "axios";
 import AdminNav from "../../../Components/NavBar/adminNav";
 import "./ReportsHub.css";
 
-/* ========================================
-   Icon Components - Lightweight SVG Icons
-   ======================================== */
 
 // Common stroke properties for consistent icon styling
 const Stroke = { 
@@ -75,8 +72,6 @@ const IconRefresh = (props) => (
    ======================================== */
 
 /**
- * Extracts array data from various API response formats
- * Handles different response structures from backend endpoints
  * 
  * @param {Object|Array} payload - API response data
  * @returns {Array} Extracted array data
@@ -124,19 +119,14 @@ const fmt = (value) => {
   }
 };
 
-/* ========================================
-   Main Component
-   ======================================== */
+
 
 /**
  * ReportsHub - Main dashboard component
- * Manages state and data fetching for all record types
+
  */
 export default function ReportsHub() {
-  // ========================================
-  // State Management
-  // ========================================
-  
+
   /** Loading state for refresh operations */
   const [loading, setLoading] = useState(true);
   
@@ -149,15 +139,7 @@ export default function ReportsHub() {
   /** Array of damage claims */
   const [claimList, setClaimList] = useState([]);
 
-  // ========================================
-  // Data Fetching Functions
-  // ========================================
 
-  /**
-   * Loads all data from backend APIs
-   * Uses Promise.allSettled to handle partial failures gracefully
-   * Updates all state arrays with fetched data
-   */
   const load = async () => {
     try {
       setLoading(true);
@@ -197,20 +179,12 @@ export default function ReportsHub() {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  // ========================================
-  // Effects
-  // ========================================
-
-  // ========================================
-  // Utility Functions
-  // ========================================
-
   /**
  
    Last submission calculation
-   * @param {Array} arr - Array of records to check
-   * @param {Array} keys - Array of date field names to check
-   * @returns {Date|null} Most recent date or null if none found
+   * @param {Array} arr 
+   * @param {Array} keys 
+   * @returns {Date|null} 
    */
   const last = (arr, keys = ["reportedAt", "occurredAt", "createdAt"]) => {
     if (!arr?.length) return null;
@@ -225,9 +199,6 @@ export default function ReportsHub() {
     return times.length ? new Date(Math.max(...times)) : null;
   };
 
-  // ========================================
-  // Computed Values
-  // ========================================
 
   /** Most recent report timestamp */
   const reportLast = last(reportList, ["createdAt", "date"]);
@@ -240,10 +211,10 @@ export default function ReportsHub() {
 
 
   /**
-   * Gets the location string from the most recent report of a specific type
-   * @param {string} type - Record type ('victim', 'aid', 'claim')
-   * @param {Array} list - Array of records for that type
-   * @returns {string} Location string or "—"
+   
+    @param {string} type 
+    @param {Array} list 
+    @returns {string} 
    */
   const getLatestLocationByType = (type, list) => {
     if (!list?.length) return "—";
@@ -259,7 +230,7 @@ export default function ReportsHub() {
     
     // Extract location based on record type
     if (type === 'victim') {
-      // For victim reports, extract coordinates from GeoJSON location field
+      
       if (latestRecord.location?.coordinates?.length === 2) {
         const [lng, lat] = latestRecord.location.coordinates;
         return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -279,10 +250,7 @@ export default function ReportsHub() {
   const aidLocation = getLatestLocationByType('aid', aidList);
   const claimLocation = getLatestLocationByType('claim', claimList);
 
-  // ========================================
-  // Render
-  // ========================================
-
+  
   return (
     <>
       {/* Admin Header */}
